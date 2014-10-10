@@ -50,8 +50,8 @@ public class readmail implements CommandExecutor {
         String target = rs.getString("target");
         String sentby = rs.getString("sender");
         
-        boolean isSender = sentby.equals(sender.getName());
-        boolean isTarget = target.equals(sender.getName());
+        boolean isSender = sentby.equalsIgnoreCase(sender.getName());
+        boolean isTarget = target.equalsIgnoreCase(sender.getName());
         boolean isSpy    = sender.hasPermission("SimpleMail.spy");
         if (!isSender && !isTarget && !isSpy) {
             sender.sendMessage(plugin.GRAY+"[SimpleMail] "+plugin.RED+"This is not your message to read.");
@@ -68,9 +68,9 @@ public class readmail implements CommandExecutor {
         }
         
         sender.sendMessage(plugin.GOLD+"Message Open: "+plugin.WHITE+id);        
-        if (!sender.getName().equals(sentby))
+        if (!sender.getName().equalsIgnoreCase(sentby))
           sender.sendMessage(plugin.GRAY+" From: " +plugin.GREEN+ rs.getString("sender"));
-        if (!sender.getName().equals(target))
+        if (!sender.getName().equalsIgnoreCase(target))
           sender.sendMessage(plugin.GRAY+" To: " +plugin.GREEN+ rs.getString("target"));
         sender.sendMessage(plugin.GRAY+" Date: " +plugin.WHITE+ rs.getString("fdate") );      
         sender.sendMessage(plugin.GRAY+" Expires: " +plugin.WHITE+ expiration);
