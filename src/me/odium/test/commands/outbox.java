@@ -38,8 +38,8 @@ public class outbox implements CommandExecutor {
       
       sender.sendMessage(plugin.GOLD+"- ID ----- TO ----------- DATE ------");
       while(rs.next()){
-        String isread = rs.getString("read");          
-        if (isread.contains("NO")) {
+        int isread = rs.getInt("isread");
+        if (isread == 0) {
           sender.sendMessage(plugin.GRAY+"  [" +plugin.GREEN+ rs.getInt("id") +plugin.GRAY+"]"+"         "+rs.getString("target")+"          "+rs.getString("date"));            
         } else {
           sender.sendMessage(plugin.GRAY+"  [" +rs.getInt("id") +plugin.GRAY+"]"+"         "+rs.getString("target")+"          "+rs.getString("date"));

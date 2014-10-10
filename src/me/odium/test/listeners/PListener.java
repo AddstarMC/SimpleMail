@@ -34,7 +34,7 @@ public class PListener implements Listener {
       try {        
         con = service.getConnection();
         stmt = con.createStatement();
-        rs = stmt.executeQuery("SELECT COUNT(target) AS inboxtotal FROM SM_Mail WHERE target='"+targetnick+"' AND read='NO'");
+        rs = stmt.executeQuery("SELECT COUNT(target) AS inboxtotal FROM SM_Mail WHERE target='"+targetnick+"' AND isread=0");
         final int id = rs.getInt("inboxtotal");
         if(player.hasPermission("simplemail.inbox") && id != 0) {
           int tempDelay = plugin.getConfig().getInt("OnPlayerJoin.DelayInSeconds");

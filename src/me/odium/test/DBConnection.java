@@ -1,6 +1,5 @@
 package me.odium.test;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -32,9 +31,24 @@ public class DBConnection {
         this.plugin = plugin;
     }
 
-    public void setConnection() throws Exception {
-        Class.forName("org.sqlite.JDBC");
-        con = DriverManager.getConnection("jdbc:sqlite:"+plugin.getDataFolder().getAbsolutePath()+File.separator+"SimpleMail.db");
+    public boolean setConnection() throws Exception {
+        String host = plugin.getConfig().getString("Mysql.Host");
+        String user = plugin.getConfig().getString("Mysql.User");
+        String pass = plugin.getConfig().getString("Mysql.Pass");
+        String db = plugin.getConfig().getString("Mysql.Database");
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+        	con = DriverManager.getConnection("jdbc:mysql://" + host + "/" + db, user, pass);
+        } catch (SQLException e) {
+            plugin.getLogger().severe("Unable to open database!");
+            e.printStackTrace();
+            return false;
+        } catch (ClassNotFoundException e) {
+        	plugin.getLogger().severe("Unable to find a suitable MySQL driver!");
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     public Connection getConnection() {
@@ -49,7 +63,7 @@ public class DBConnection {
         Statement stmt;
         try {
             stmt = con.createStatement();
-            String queryC = "CREATE TABLE IF NOT EXISTS SM_Mail (id INTEGER PRIMARY KEY, sender varchar(16) collate nocase, target varchar(16) collate nocase, date timestamp, message varchar(30), read varchar(10), expiration timestamp)";
+            String queryC = "CREATE TABLE IF NOT EXISTS SM_Mail (id INTEGER PRIMARY KEY, sender varchar(16), target varchar(16), datetime timestamp, message varchar(30), isread tinyint(1), expiration timestamp)";
             stmt.executeUpdate(queryC);
         } catch(Exception e) {
             plugin.log.info("[SimpleMail] "+"Error: "+e);

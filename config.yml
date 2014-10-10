@@ -8,3 +8,9 @@ MailExpiration: 14
 OnPlayerJoin:
   ShowNewMessages: true
   DelayInSeconds: 3
+
+Mysql:
+  Host: localhost
+  User: username
+  Pass: password
+  Database: simplemail

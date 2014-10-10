@@ -61,7 +61,11 @@ public class simplemail extends JavaPlugin {
     // Create connection & table
     try {
       service.setPlugin(this);
-      service.setConnection();
+      if (!service.setConnection()) {
+    	  getLogger().severe("Database connectivion not successful! Aborting startup.");
+    	  setEnabled(false);
+    	  return;
+      }
       service.createTable();
     } catch(Exception e) {
       log.info("[SimpleMail] "+"Error: "+e); 

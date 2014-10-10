@@ -53,7 +53,7 @@ public class readmail implements CommandExecutor {
 
           }
           rs.close();
-          stmt.executeUpdate("UPDATE SM_Mail SET read='YES', expiration='"+expiration+"' WHERE id='"+args[0]+"' AND target='"+Playername+"'");
+          stmt.executeUpdate("UPDATE SM_Mail SET isread=1, expiration='"+expiration+"' WHERE id='"+args[0]+"' AND target='"+Playername+"'");
         } else {
           String expiration = rs.getString("expiration");        
 

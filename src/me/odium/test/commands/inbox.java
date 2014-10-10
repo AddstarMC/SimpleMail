@@ -38,8 +38,8 @@ public class inbox implements CommandExecutor {
       rs = stmt.executeQuery("SELECT * FROM SM_Mail WHERE target='" + targetnick + "'");        
       sender.sendMessage(plugin.GOLD+"- ID ----- FROM ----------- DATE ------");
       while(rs.next()){
-        String isread = rs.getString("read");          
-        if (isread.contains("NO")) {
+        int isread = rs.getInt("isread");
+        if (isread == 0) {
           sender.sendMessage(plugin.GRAY+"  [" +plugin.GREEN+ rs.getInt("id") +plugin.GRAY+"]"+"         "+rs.getString("sender")+"          "+rs.getString("date"));            
         } else {
           sender.sendMessage(plugin.GRAY+"  [" +rs.getInt("id") +plugin.GRAY+"]"+"         "+rs.getString("sender")+"          "+rs.getString("date"));
