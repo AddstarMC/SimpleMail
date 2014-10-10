@@ -20,12 +20,17 @@ import me.odium.test.commands.readmail;
 import me.odium.test.commands.sendmail;
 import me.odium.test.listeners.PListener;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.FileConfigurationOptions;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import com.google.common.collect.Iterables;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 
 public class simplemail extends JavaPlugin {
   public Logger log = Logger.getLogger("Minecraft");
@@ -70,6 +75,7 @@ public class simplemail extends JavaPlugin {
     } catch(Exception e) {
       log.info("[SimpleMail] "+"Error: "+e); 
     }
+    this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
     // Check for and delete any expired tickets, display progress.
     log.info("[SimpleMail] "+expireMail()+" Expired Messages Cleared");
   }
@@ -121,35 +127,16 @@ public class simplemail extends JavaPlugin {
   }
 
   public int expireMail() {
-    ResultSet rs;
     java.sql.Statement stmt;
     Connection con;
     int expirations = 0;
     try {
       con = service.getConnection();
       stmt = con.createStatement();
-      Statement stmt2 = con.createStatement();
-      rs = stmt.executeQuery("SELECT * FROM SM_Mail");
-      while(rs.next()){
-        String date = rs.getString("date");
-        String expiration = rs.getString("expiration");
-        String id = rs.getString("id");
-        // IF AN EXPIRATION HAS BEEN APPLIED 
-        if (!expiration.equalsIgnoreCase("NONE")) {
-          // CONVERT DATE-STRINGS FROM DB TO DATES 
-          Date dateNEW = new SimpleDateFormat("dd/MMM/yy HH:mm", Locale.ENGLISH).parse(date);
-          Date expirationNEW = new SimpleDateFormat("dd/MMM/yy HH:mm", Locale.ENGLISH).parse(expiration);
-          // COMPARE STRINGS
-          int HasExpired = dateNEW.compareTo(expirationNEW);
-          if (HasExpired >= 0) {
-            stmt2.executeUpdate("DELETE FROM SM_Mail WHERE id='"+id+"'");
-            expirations++;          
-          } 
-        }
-      }
-      return expirations;
+      expirations = stmt.executeUpdate("DELETE FROM SM_Mail WHERE expiration IS NOT NULL AND expiration < NOW()");
     } catch(Exception e) {
       log.info("[SimpleMail] "+"Error: "+e);
+      e.printStackTrace();
     }  
     return expirations;
   }
@@ -167,5 +154,14 @@ public class simplemail extends JavaPlugin {
       sender.sendMessage(AQUA+" /clearmailbox <playername> " +WHITE+"- Clear an active mailbox");      
       sender.sendMessage(AQUA+" /purgemail " +WHITE+"- Purge expired messages from DB");
     }
+  }
+  
+  public void SendPluginMessage(String subchannel, String data1, String data2) {
+	  ByteArrayDataOutput out = ByteStreams.newDataOutput();
+	  out.writeUTF(subchannel);
+	  out.writeUTF(data1);
+	  out.writeUTF(data2);
+	  Player player = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
+	  player.sendPluginMessage(this, "BungeeCord", out.toByteArray());
   }
 }

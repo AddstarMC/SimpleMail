@@ -35,14 +35,14 @@ public class inbox implements CommandExecutor {
       stmt = con.createStatement();
       String targetnick = player.getName().toLowerCase(); 
 
-      rs = stmt.executeQuery("SELECT * FROM SM_Mail WHERE target='" + targetnick + "'");        
+      rs = stmt.executeQuery("SELECT *, DATE_FORMAT(date, '%e/%b/%Y %H:%i') as fdate FROM SM_Mail WHERE target='" + targetnick + "'");        
       sender.sendMessage(plugin.GOLD+"- ID ----- FROM ----------- DATE ------");
       while(rs.next()){
         int isread = rs.getInt("isread");
         if (isread == 0) {
-          sender.sendMessage(plugin.GRAY+"  [" +plugin.GREEN+ rs.getInt("id") +plugin.GRAY+"]"+"         "+rs.getString("sender")+"          "+rs.getString("date"));            
+          sender.sendMessage(plugin.GRAY+"  [" +plugin.GREEN+ rs.getInt("id") +plugin.GRAY+"]"+"         "+rs.getString("sender")+"          "+rs.getString("fdate"));            
         } else {
-          sender.sendMessage(plugin.GRAY+"  [" +rs.getInt("id") +plugin.GRAY+"]"+"         "+rs.getString("sender")+"          "+rs.getString("date"));
+          sender.sendMessage(plugin.GRAY+"  [" +rs.getInt("id") +plugin.GRAY+"]"+"         "+rs.getString("sender")+"          "+rs.getString("fdate"));
         }
       }
       rs.close();

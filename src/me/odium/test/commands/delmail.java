@@ -39,13 +39,14 @@ public class delmail implements CommandExecutor {
       stmt = con.createStatement();
 
       rs = stmt.executeQuery("SELECT * FROM SM_Mail WHERE id='" + args[0] + "'");
-
-      if (!rs.getString("target").equalsIgnoreCase(Playername)) {
-        sender.sendMessage(plugin.GRAY+"[SimpleMail] "+plugin.RED+"This is not your message to delete or it does not exist. ");
-      } else {
-        stmt.executeUpdate("DELETE FROM SM_Mail WHERE id='"+args[0]+"' AND target='"+Playername+"'");
-        sender.sendMessage(plugin.GRAY+"[SimpleMail] "+plugin.GREEN+"Message Deleted.");
-      } 
+      if (rs.next()) {
+        if (!rs.getString("target").equalsIgnoreCase(Playername)) {
+          sender.sendMessage(plugin.GRAY+"[SimpleMail] "+plugin.RED+"This is not your message to delete or it does not exist. ");
+        } else {
+          stmt.executeUpdate("DELETE FROM SM_Mail WHERE id='"+args[0]+"' AND target='"+Playername+"'");
+          sender.sendMessage(plugin.GRAY+"[SimpleMail] "+plugin.GREEN+"Message Deleted.");
+        }
+      }
       rs.close();
     } catch(Exception e) {         
       if (e.toString().contains("ResultSet closed")) {

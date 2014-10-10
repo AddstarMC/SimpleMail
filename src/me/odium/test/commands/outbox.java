@@ -34,15 +34,15 @@ public class outbox implements CommandExecutor {
       stmt = con.createStatement();
       String ownernick = player.getName().toLowerCase(); 
 
-      rs = stmt.executeQuery("SELECT * FROM SM_Mail WHERE sender='" + ownernick + "'");
+      rs = stmt.executeQuery("SELECT *, DATE_FORMAT(date, '%e/%b/%Y %H:%i') as fdate FROM SM_Mail WHERE sender='" + ownernick + "'");
       
       sender.sendMessage(plugin.GOLD+"- ID ----- TO ----------- DATE ------");
       while(rs.next()){
         int isread = rs.getInt("isread");
         if (isread == 0) {
-          sender.sendMessage(plugin.GRAY+"  [" +plugin.GREEN+ rs.getInt("id") +plugin.GRAY+"]"+"         "+rs.getString("target")+"          "+rs.getString("date"));            
+          sender.sendMessage(plugin.GRAY+"  [" +plugin.GREEN+ rs.getInt("id") +plugin.GRAY+"]"+"         "+rs.getString("target")+"          "+rs.getString("fdate"));            
         } else {
-          sender.sendMessage(plugin.GRAY+"  [" +rs.getInt("id") +plugin.GRAY+"]"+"         "+rs.getString("target")+"          "+rs.getString("date"));
+          sender.sendMessage(plugin.GRAY+"  [" +rs.getInt("id") +plugin.GRAY+"]"+"         "+rs.getString("target")+"          "+rs.getString("fdate"));
         }
       }
       sender.sendMessage(plugin.GRAY+"(deleted/expired messages will not be displayed)");

@@ -35,21 +35,23 @@ public class PListener implements Listener {
         con = service.getConnection();
         stmt = con.createStatement();
         rs = stmt.executeQuery("SELECT COUNT(target) AS inboxtotal FROM SM_Mail WHERE target='"+targetnick+"' AND isread=0");
-        final int id = rs.getInt("inboxtotal");
-        if(player.hasPermission("simplemail.inbox") && id != 0) {
-          int tempDelay = plugin.getConfig().getInt("OnPlayerJoin.DelayInSeconds");
-          int Delay = 20*tempDelay;
-          
-          Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Bukkit.getServer().getPluginManager().getPlugin("SimpleMail"), new Runnable() {
-            public void run() {
-              player.sendMessage(plugin.GRAY+"[SimpleMail] "+plugin.GREEN+ "You have " + plugin.GOLD +id+plugin.GREEN+" new messages");
-            }
-          }, Delay);
-          
+        if (rs.next()) {
+	      final int id = rs.getInt("inboxtotal");
+	      if(player.hasPermission("simplemail.inbox") && id != 0) {
+	        int tempDelay = plugin.getConfig().getInt("OnPlayerJoin.DelayInSeconds");
+	        int Delay = 20*tempDelay;
+	        
+	        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Bukkit.getServer().getPluginManager().getPlugin("SimpleMail"), new Runnable() {
+	          public void run() {
+	            player.sendMessage(plugin.GRAY+"[SimpleMail] "+plugin.GREEN+ "You have " + plugin.GOLD +id+plugin.GREEN+" new messages");
+	          }
+	        }, Delay);
+
+	      }
         }
         rs.close();
       } catch(Exception e) {
-        player.sendMessage(plugin.GRAY+"[SimpleMail] "+plugin.RED+"Error: "+plugin.WHITE+e);
+        e.printStackTrace();
       }
     }
   }

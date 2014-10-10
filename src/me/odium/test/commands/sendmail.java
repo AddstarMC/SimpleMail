@@ -52,64 +52,40 @@ public class sendmail implements CommandExecutor {
               sb.append(" ");
             }
             String details = sb.toString();  
-
-            String Rightnow = plugin.getCurrentDTG("date");            
             String target = plugin.myGetPlayerName(args[0]).toLowerCase();
 
             ResultSet rs2 = stmt.executeQuery("SELECT COUNT(target) AS inboxtotal FROM SM_Mail WHERE target='"+target+"'");
+            rs2.next();
             int MaxMailboxSize = plugin.getConfig().getInt("MaxMailboxSize");
             if (rs2.getInt("inboxtotal") >= MaxMailboxSize) {
               sender.sendMessage(plugin.GRAY+"[SimpleMail] "+plugin.RED+"Player's Inbox is full");
               rs2.close();
               return true;
             }
-            PreparedStatement statement = con.prepareStatement("insert into SM_MAIL values (?,?,?,?,?,?,?);");
+            PreparedStatement statement = con.prepareStatement("INSERT INTO SM_Mail "
+            		+ "(sender, target, date, message, isread, expiration) VALUES "
+            		+ "(?,?,NOW(),?,0,NULL);");
             if (player == null) {              
-              statement.setString(2, "console");              
-
-              statement.setString(3, target);
-              
-              statement.setString(4, Rightnow);             
-              statement.setString(5, details);
-              
-              statement.setString(6, "NO");
-              statement.setString(7, "NONE"); 
-              statement.executeUpdate();
-              statement.close();
-
-              
-              sender.sendMessage(plugin.GRAY+"[SimpleMail] "+ChatColor.GREEN + "Message Sent to: " +ChatColor.WHITE+ target);
-              if (Bukkit.getPlayer(args[0]) != null && Bukkit.getPlayer(args[0]).hasPermission("simplemail.inbox")) {
-                Bukkit.getPlayer(args[0]).sendMessage(plugin.GRAY+"[SimpleMail] "+plugin.GREEN+"You've Got Mail!"+plugin.GOLD+" [/Mail]");
-              }
-              return true;
-              
-            } else {                        
-              statement.setString(2, player.getName());              
-
-              statement.setString(3, target);
-              
-              statement.setString(4, Rightnow);              
-              statement.setString(5, details);
-              
-              statement.setString(6, "NO");
-              statement.setString(7, "NONE");
-              statement.executeUpdate();
-              statement.close();
-              
-              sender.sendMessage(plugin.GRAY+"[SimpleMail] "+ChatColor.GREEN + "Message Sent to: " +ChatColor.WHITE+ target);
-              if (Bukkit.getPlayer(args[0]) != null && Bukkit.getPlayer(args[0]).hasPermission("simplemail.inbox")) {
-                Bukkit.getPlayer(args[0]).sendMessage(plugin.GRAY+"[SimpleMail] "+plugin.GREEN+"You've Got Mail!"+plugin.GOLD+" [/Mail]");
-              }
-              return true;
+              statement.setString(1, "Server");
+            } else {
+              statement.setString(1, player.getName()); 
             }
+			statement.setString(2, target);
+			statement.setString(3, details);
+			  
+			statement.executeUpdate();
+			statement.close();
+			  
+			sender.sendMessage(plugin.GRAY+"[SimpleMail] "+ChatColor.GREEN + "Message Sent to: " +ChatColor.WHITE+ target);
+			String msg = plugin.GRAY+"[SimpleMail] "+plugin.GREEN+"You've Got Mail!"+plugin.GOLD+" [/Mail]";
+			if (Bukkit.getPlayer(args[0]) != null) {
+			  Bukkit.getPlayer(args[0]).sendMessage(msg);
+			} else {
+			  plugin.SendPluginMessage("Message", args[0], msg);
+			}
+			return true;
       } catch(Exception e) {
-        plugin.log.info("[SimpleMail] "+"Error: "+e);        
-        if (e.toString().contains("locked")) {
-          sender.sendMessage(plugin.GRAY+"[SimpleMail] "+plugin.GOLD+"The database is busy. Please wait a moment before trying again...");
-        } else {
-          player.sendMessage(plugin.GRAY+"[SimpleMail] "+plugin.RED+"Error: "+plugin.WHITE+e);
-        }
+    	e.printStackTrace();
       }
      
     return true;    

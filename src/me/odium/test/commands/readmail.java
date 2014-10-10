@@ -36,51 +36,55 @@ public class readmail implements CommandExecutor {
       try {
         con = service.getConnection();
         stmt = con.createStatement();
-        String Playername = player.getName().toLowerCase();
 
-        rs = stmt.executeQuery("SELECT * FROM SM_Mail WHERE id='"+args[0]+"' AND target='"+Playername+"'");
+        rs = stmt.executeQuery("SELECT "
+        		+ "id, sender, target, date, message, isread, expiration,"
+        		+ "DATE_FORMAT(date, '%e/%b/%Y %H:%i') as fdate, "
+        		+ "DATE_FORMAT(date, '%e/%b/%Y %H:%i') as fexpiration "
+        		+ "FROM SM_Mail WHERE id='"+args[0]+"'");
+        if (!rs.next()) {
+            sender.sendMessage(plugin.GRAY+"[SimpleMail] "+plugin.RED+"This mail does not exist.");
+            return true;
+        }
+
+        String target = rs.getString("target");
+        String sentby = rs.getString("sender");
+        
+        boolean isSender = sentby.equals(sender.getName());
+        boolean isTarget = target.equals(sender.getName());
+        boolean isSpy    = sender.hasPermission("SimpleMail.spy");
+        if (!isSender && !isTarget && !isSpy) {
+            sender.sendMessage(plugin.GRAY+"[SimpleMail] "+plugin.RED+"This is not your message to read.");
+            return true;
+        }
+
         String date = rs.getString("date");
         String id = rs.getString("id");
-        if (rs.getString("expiration").equalsIgnoreCase("NONE")) {
-          String expiration = plugin.getExpiration(date);        
-
-          sender.sendMessage(plugin.GOLD+"Message Open: "+plugin.WHITE+id);        
-          while(rs.next()){
-            sender.sendMessage(plugin.GRAY+" From: " +plugin.GREEN+ rs.getString("sender"));
-            sender.sendMessage(plugin.GRAY+" Date: " +plugin.WHITE+ date );      
-            sender.sendMessage(plugin.GRAY+" Expires: " +plugin.WHITE+ expiration);
-            sender.sendMessage(plugin.GRAY+" Message: " +plugin.WHITE+ rs.getString("message"));
-
-          }
-          rs.close();
-          stmt.executeUpdate("UPDATE SM_Mail SET isread=1, expiration='"+expiration+"' WHERE id='"+args[0]+"' AND target='"+Playername+"'");
+        String expiration = rs.getString("expiration");        
+        if (expiration == null || expiration.isEmpty()) {
+          expiration = plugin.getExpiration(date);
         } else {
-          String expiration = rs.getString("expiration");        
-
-          sender.sendMessage(plugin.GOLD+"Message Open: "+plugin.WHITE+id);        
-          while(rs.next()){
-            sender.sendMessage(plugin.GRAY+" From: " +plugin.GREEN+ rs.getString("sender"));
-            sender.sendMessage(plugin.GRAY+" Date: " +plugin.WHITE+ date );      
-            sender.sendMessage(plugin.GRAY+" Expires: " +plugin.WHITE+ expiration);
-            sender.sendMessage(plugin.GRAY+" Message: " +plugin.WHITE+ rs.getString("message"));
-
-          }
-          rs.close();
-          stmt.close();
+          expiration = rs.getString("fexpiration");
         }
-      } catch(Exception e) {         
-        if (e.toString().contains("ResultSet closed")) {
-          sender.sendMessage(plugin.GRAY+"[SimpleMail] "+plugin.RED+"This is not your message to read or it does not exist.");
-        } else if (e.toString().contains("java.lang.ArrayIndexOutOfBoundsException")) {
-          sender.sendMessage("/readmail <id>");
-        } else {
-          player.sendMessage(plugin.GRAY+"[SimpleMail] "+plugin.RED+"Error: "+plugin.WHITE+e);
+        
+        sender.sendMessage(plugin.GOLD+"Message Open: "+plugin.WHITE+id);        
+        if (!sender.getName().equals(sentby))
+          sender.sendMessage(plugin.GRAY+" From: " +plugin.GREEN+ rs.getString("sender"));
+        if (!sender.getName().equals(target))
+          sender.sendMessage(plugin.GRAY+" To: " +plugin.GREEN+ rs.getString("target"));
+        sender.sendMessage(plugin.GRAY+" Date: " +plugin.WHITE+ rs.getString("fdate") );      
+        sender.sendMessage(plugin.GRAY+" Expires: " +plugin.WHITE+ expiration);
+        sender.sendMessage(plugin.GRAY+" Message: " +plugin.WHITE+ rs.getString("message"));
+
+        if ((isTarget) && (rs.getInt("isread") == 0)) {
+          String days = plugin.getConfig().getString("MailExpiration");
+          stmt.executeUpdate("UPDATE SM_Mail SET isread=1, expiration=DATE_ADD(NOW(), INTERVAL "+ days +" DAY) WHERE id='"+args[0]+"'");
         }
+        rs.close();
+      } catch(Exception e) {
+    	  plugin.getLogger().warning("Error reading mail! ID = " + args[0]);
+    	  e.printStackTrace();
       }
       return true;
-
-        
-
   }
-
 }
