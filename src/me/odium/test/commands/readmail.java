@@ -73,7 +73,6 @@ public class readmail implements CommandExecutor {
 				String days = plugin.getConfig().getString("MailExpiration");
 				stmt.executeUpdate("UPDATE SM_Mail SET isread=1, expiration=DATE_ADD(NOW(), INTERVAL " + days + " DAY) WHERE id='" + args[0] + "'");
 			}
-			rs.close();
 		} catch (Exception e) {
 			plugin.getLogger().warning("Error reading mail! ID = " + args[0]);
 			e.printStackTrace();
