@@ -1,10 +1,5 @@
 package me.odium.test.commands;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-
-
-import me.odium.test.DBConnection;
 import me.odium.test.simplemail;
 
 import org.bukkit.ChatColor;
@@ -19,10 +14,10 @@ public class purgemail implements CommandExecutor {
     this.plugin = plugin;
   }
 
-  DBConnection service = DBConnection.getInstance();
-  ResultSet rs;
-  java.sql.Statement stmt;
-  Connection con;
+  //DBConnection service = DBConnection.getInstance();
+  //ResultSet rs;
+  //Statement stmt;
+  //Connection con;
 
   public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)  {    
 //    Player player = null;

@@ -2,6 +2,7 @@ package me.odium.test.commands;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import me.odium.test.DBConnection;
 import me.odium.test.simplemail;
@@ -26,9 +27,9 @@ public class inbox implements CommandExecutor {
       player = (Player) sender;
     }
 
-    ResultSet rs;
-    java.sql.Statement stmt;
-    Connection con;
+    ResultSet rs = null;
+    java.sql.Statement stmt = null;
+    Connection con = null;
     try {
 
       con = service.getConnection();
@@ -45,7 +46,6 @@ public class inbox implements CommandExecutor {
           sender.sendMessage(plugin.GRAY+"  [" +rs.getInt("id") +plugin.GRAY+"]"+"         "+rs.getString("sender")+"          "+rs.getString("fdate"));
         }
       }
-      rs.close();
     } catch(Exception e) {
       plugin.log.info("[SimpleMail] "+"Error: "+e);        
       if (e.toString().contains("locked")) {
@@ -53,7 +53,15 @@ public class inbox implements CommandExecutor {
       } else {
         player.sendMessage(plugin.GRAY+"[SimpleMail] "+plugin.RED+"Error: "+plugin.WHITE+e);
       }
-    }
+	} finally {
+		try {
+			if (rs != null) { rs.close(); rs = null; }
+			if (stmt != null) { stmt.close(); stmt = null; }
+		} catch (SQLException e) {
+			System.out.println("ERROR: Failed to close Statement or ResultSet!");
+			e.printStackTrace();
+		}
+	}
 
     return true;    
   }

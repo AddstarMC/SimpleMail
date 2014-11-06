@@ -1,12 +1,8 @@
 package me.odium.test;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
 import java.util.logging.Logger;
 
 import me.odium.test.commands.clearmailbox;

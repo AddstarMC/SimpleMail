@@ -2,6 +2,7 @@ package me.odium.test.listeners;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import me.odium.test.DBConnection;
 import me.odium.test.simplemail;
@@ -32,9 +33,9 @@ public class PListener implements Listener {
 				public void run() {
 					if (!player.isOnline()) return;
 					String targetnick = player.getName().toLowerCase();
-					Connection con;
-					java.sql.Statement stmt;
-					ResultSet rs;
+					Connection con = null;
+					java.sql.Statement stmt = null;
+					ResultSet rs = null;
 					try {        
 						con = service.getConnection();
 						stmt = con.createStatement();
@@ -48,6 +49,14 @@ public class PListener implements Listener {
 						rs.close();
 					} catch(Exception e) {
 						e.printStackTrace();
+					} finally {
+						try {
+							if (rs != null) { rs.close(); rs = null; }
+							if (stmt != null) { stmt.close(); stmt = null; }
+						} catch (SQLException e) {
+							System.out.println("ERROR: Failed to close Statement or ResultSet!");
+							e.printStackTrace();
+						}
 					}
 	    	    }
 			}, Delay*20L);
