@@ -63,7 +63,7 @@ public class DBConnection {
         Statement stmt;
         try {
             stmt = con.createStatement();
-            String queryC = "CREATE TABLE IF NOT EXISTS SM_Mail (id INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT, sender varchar(16), target varchar(16), date datetime, message varchar(30), isread tinyint(1), expiration datetime)";
+            String queryC = "CREATE TABLE IF NOT EXISTS SM_Mail (id INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT, sender varchar(16), target varchar(16), date datetime, message text, isread tinyint(1), expiration datetime)";
             stmt.executeUpdate(queryC);
         } catch(Exception e) {
             plugin.log.info("[SimpleMail] "+"Error: "+e);
