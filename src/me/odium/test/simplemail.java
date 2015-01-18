@@ -68,8 +68,9 @@ public class simplemail extends JavaPlugin {
     	  return;
       }
       service.createTable();
+      service.convertTable();
     } catch(Exception e) {
-      log.info("[SimpleMail] "+"Error: "+e); 
+      e.printStackTrace(); 
     }
     this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
     // Check for and delete any expired tickets, display progress.

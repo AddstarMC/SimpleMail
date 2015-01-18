@@ -34,9 +34,8 @@ public class inbox implements CommandExecutor {
 
       con = service.getConnection();
       stmt = con.createStatement();
-      String targetnick = player.getName().toLowerCase(); 
 
-      rs = stmt.executeQuery("SELECT *, DATE_FORMAT(date, '%e/%b/%Y %H:%i') as fdate FROM SM_Mail WHERE target='" + targetnick + "'");        
+      rs = stmt.executeQuery("SELECT *, DATE_FORMAT(date, '%e/%b/%Y %H:%i') as fdate FROM SM_Mail WHERE target_id='" + player.getUniqueId().toString() + "'");        
       sender.sendMessage(plugin.GOLD+"- ID ----- FROM ----------- DATE ------");
       while(rs.next()){
         int isread = rs.getInt("isread");

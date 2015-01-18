@@ -32,14 +32,13 @@ public class PListener implements Listener {
 			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Bukkit.getServer().getPluginManager().getPlugin("SimpleMail"), new Runnable() {
 				public void run() {
 					if (!player.isOnline()) return;
-					String targetnick = player.getName().toLowerCase();
 					Connection con = null;
 					java.sql.Statement stmt = null;
 					ResultSet rs = null;
 					try {        
 						con = service.getConnection();
 						stmt = con.createStatement();
-						rs = stmt.executeQuery("SELECT COUNT(target) AS inboxtotal FROM SM_Mail WHERE target='"+targetnick+"' AND isread=0");
+						rs = stmt.executeQuery("SELECT COUNT(target) AS inboxtotal FROM SM_Mail WHERE target_id='"+player.getUniqueId().toString()+"' AND isread=0");
 						if (rs.next()) {
 							final int total = rs.getInt("inboxtotal");
 							if(total > 0) {

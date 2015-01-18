@@ -3,6 +3,7 @@ package me.odium.test.commands;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.UUID;
 
 import me.odium.test.DBConnection;
 import me.odium.test.simplemail;
@@ -10,6 +11,7 @@ import me.odium.test.simplemail;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 public class readmail implements CommandExecutor {
 
@@ -26,6 +28,12 @@ public class readmail implements CommandExecutor {
 			sender.sendMessage("/readmail <ID>");
 			return true;
 		}
+		
+		UUID senderId = null;
+		if (sender instanceof Player) {
+		    senderId = ((Player)sender).getUniqueId();
+		}
+		
 		ResultSet rs = null;
 		java.sql.Statement stmt = null;
 		Connection con = null;
@@ -33,18 +41,20 @@ public class readmail implements CommandExecutor {
 			con = service.getConnection();
 			stmt = con.createStatement();
 
-			rs = stmt.executeQuery("SELECT " + "id, sender, target, date, message, isread, expiration," + "DATE_FORMAT(date, '%e/%b/%Y %H:%i') as fdate, "
+			rs = stmt.executeQuery("SELECT " + "id, sender_id, sender, target_id, target, date, message, isread, expiration," + "DATE_FORMAT(date, '%e/%b/%Y %H:%i') as fdate, "
 					+ "DATE_FORMAT(date, '%e/%b/%Y %H:%i') as fexpiration " + "FROM SM_Mail WHERE id='" + args[0] + "'");
 			if (!rs.next()) {
 				sender.sendMessage(plugin.GRAY + "[SimpleMail] " + plugin.RED + "This mail does not exist.");
 				return true;
 			}
 
-			String target = rs.getString("target");
-			String sentby = rs.getString("sender");
+			String targetName = rs.getString("target");
+			UUID target = UUID.fromString(rs.getString("target_id"));
+			String sentbyname = rs.getString("sender");
+			UUID sentby = UUID.fromString(rs.getString("sender_id"));
 
-			boolean isSender = sentby.equalsIgnoreCase(sender.getName());
-			boolean isTarget = target.equalsIgnoreCase(sender.getName());
+			boolean isSender = sentby.equals(senderId);
+			boolean isTarget = target.equals(senderId);
 			boolean isSpy = sender.hasPermission("SimpleMail.spy");
 			if (!isSender && !isTarget && !isSpy) {
 				sender.sendMessage(plugin.GRAY + "[SimpleMail] " + plugin.RED + "This is not your message to read.");
@@ -61,10 +71,14 @@ public class readmail implements CommandExecutor {
 			}
 
 			sender.sendMessage(plugin.GOLD + "Message Open: " + plugin.WHITE + id);
-			if (!sender.getName().equalsIgnoreCase(sentby))
-				sender.sendMessage(plugin.GRAY + " From: " + plugin.GREEN + rs.getString("sender"));
-			if (!sender.getName().equalsIgnoreCase(target))
-				sender.sendMessage(plugin.GRAY + " To: " + plugin.GREEN + rs.getString("target"));
+			if (!isSender)
+				sender.sendMessage(plugin.GRAY + " From: " + plugin.GREEN + sentbyname);
+			else
+			    sender.sendMessage(plugin.GRAY + " From: " + plugin.GREEN + "Me");
+			if (!isTarget)
+				sender.sendMessage(plugin.GRAY + " To: " + plugin.GREEN + targetName);
+			else
+			    sender.sendMessage(plugin.GRAY + " To: " + plugin.GREEN + "Me");
 			sender.sendMessage(plugin.GRAY + " Date: " + plugin.WHITE + rs.getString("fdate"));
 			sender.sendMessage(plugin.GRAY + " Expires: " + plugin.WHITE + expiration);
 			sender.sendMessage(plugin.GRAY + " Message: " + plugin.WHITE + rs.getString("message"));

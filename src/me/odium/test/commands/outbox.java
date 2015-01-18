@@ -34,9 +34,8 @@ public class outbox implements CommandExecutor {
 		try {
 			con = service.getConnection();
 			stmt = con.createStatement();
-			String ownernick = player.getName().toLowerCase();
 
-			rs = stmt.executeQuery("SELECT *, DATE_FORMAT(date, '%e/%b/%Y %H:%i') as fdate FROM SM_Mail WHERE sender='" + ownernick + "'");
+			rs = stmt.executeQuery("SELECT *, DATE_FORMAT(date, '%e/%b/%Y %H:%i') as fdate FROM SM_Mail WHERE sender_id='" + player.getUniqueId().toString() + "'");
 
 			sender.sendMessage(plugin.GOLD + "- ID ----- TO ----------- DATE ------");
 			while (rs.next()) {
