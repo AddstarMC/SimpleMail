@@ -1,13 +1,15 @@
 package me.odium.test.commands;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
 import me.odium.test.DBConnection;
+import me.odium.test.Statements;
 import me.odium.test.simplemail;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -29,38 +31,24 @@ public class inbox implements CommandExecutor {
     }
 
     ResultSet rs = null;
-    java.sql.Statement stmt = null;
-    Connection con = null;
     try {
-
-      con = service.getConnection();
-      stmt = con.createStatement();
-
-      rs = stmt.executeQuery("SELECT *, DATE_FORMAT(date, '%e/%b/%Y %H:%i') as fdate FROM SM_Mail WHERE target_id='" + player.getUniqueId().toString() + "'");        
-      sender.sendMessage(plugin.GOLD+"- ID ----- FROM ----------- DATE ------");
-      while(rs.next()){
-        int isread = rs.getInt("isread");
-        if (isread == 0) {
-          sender.sendMessage(plugin.GRAY+"  [" +plugin.GREEN+ rs.getInt("id") +plugin.GRAY+"]"+"         "+rs.getString("sender")+"          "+rs.getString("fdate"));            
-        } else {
-          sender.sendMessage(plugin.GRAY+"  [" +rs.getInt("id") +plugin.GRAY+"]"+"         "+rs.getString("sender")+"          "+rs.getString("fdate"));
+        rs = service.executeQuery(Statements.Inbox, player.getUniqueId());
+        sender.sendMessage(ChatColor.GOLD + "- ID ----- FROM ----------- DATE ------");
+        while(rs.next()) {
+            int isread = rs.getInt("isread");
+            if (isread == 0) {
+                sender.sendMessage(simplemail.format("&7  [&a%d&7]         %s          %s", rs.getInt("id"), rs.getString("sender"), rs.getString("fdate")));         
+            } else {
+                sender.sendMessage(simplemail.format("&7  [%d]         %s          %s", rs.getInt("id"), rs.getString("sender"), rs.getString("fdate")));
+            }
         }
-      }
-    } catch(Exception e) {
-        plugin.log.log(Level.SEVERE, "An error occured while reading inbox", e);       
-      if (e.toString().contains("locked")) {
-        sender.sendMessage(plugin.GRAY+"[SimpleMail] "+plugin.GOLD+"The database is busy. Please wait a moment before trying again...");
-      } else {
-        player.sendMessage(plugin.GRAY+"[SimpleMail] "+plugin.RED+"Error: "+plugin.WHITE+e);
-      }
+    } catch(ExecutionException e) {
+        sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "An internal error occured while reading your inbox");
+    } catch(SQLException e) {
+        plugin.log.log(Level.SEVERE, "Error executing sql query", e);
+        sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "An internal error occured while reading your inbox");
 	} finally {
-		try {
-			if (rs != null) { rs.close(); rs = null; }
-			if (stmt != null) { stmt.close(); stmt = null; }
-		} catch (SQLException e) {
-			System.out.println("ERROR: Failed to close Statement or ResultSet!");
-			e.printStackTrace();
-		}
+	    service.closeResultSet(rs);
 	}
 
     return true;    

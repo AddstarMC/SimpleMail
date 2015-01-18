@@ -1,17 +1,18 @@
 package me.odium.test.commands;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
 import me.odium.test.DBConnection;
+import me.odium.test.Statements;
 import me.odium.test.simplemail;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 public class mailboxes implements CommandExecutor {
 
@@ -24,38 +25,21 @@ public class mailboxes implements CommandExecutor {
 	DBConnection service = DBConnection.getInstance();
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		Player player = null;
-		if (sender instanceof Player) {
-			player = (Player) sender;
-		}
-
-		ResultSet rs = null;
-		java.sql.Statement stmt = null;
-		Connection con = null;
+	    ResultSet rs = null;
 		try {
-			con = service.getConnection();
-			stmt = con.createStatement();
-			rs = stmt.executeQuery("SELECT DISTINCT target FROM SM_Mail");
-			sender.sendMessage(plugin.GOLD + "Active Inboxes: ");
+			rs = service.executeQuery(Statements.Mailboxes);
+			sender.sendMessage(ChatColor.GOLD + "Active Inboxes: ");
 			while (rs.next()) {
-				sender.sendMessage(plugin.GRAY + " Mailbox: " + plugin.GREEN + rs.getString("target"));
+				sender.sendMessage(ChatColor.GRAY + " Mailbox: " + ChatColor.GREEN + rs.getString("target"));
 			}
-		} catch (Exception e) {
-		    plugin.log.log(Level.SEVERE, "An error occured while reading active mailboxes", e);
-			if (e.toString().contains("locked")) {
-				sender.sendMessage(plugin.GRAY + "[SimpleMail] " + plugin.GOLD + "The database is busy. Please wait a moment before trying again...");
-			} else {
-				player.sendMessage(plugin.GRAY + "[SimpleMail] " + plugin.RED + "Error: " + plugin.WHITE + e);
-			}
-		} finally {
-			try {
-				if (rs != null) { rs.close(); rs = null; }
-				if (stmt != null) { stmt.close(); stmt = null; }
-			} catch (SQLException e) {
-				System.out.println("ERROR: Failed to close Statement or ResultSet!");
-				e.printStackTrace();
-			}
-		}
+		} catch(ExecutionException e) {
+	        sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "An internal error occured while reading active mailboxes");
+	    } catch(SQLException e) {
+	        plugin.log.log(Level.SEVERE, "Error executing sql query", e);
+	        sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "An internal error occured while reading active mailboxes");
+	    } finally {
+	        service.closeResultSet(rs);
+	    }
 
 		return true;
 	}

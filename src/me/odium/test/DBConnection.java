@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -205,6 +206,72 @@ public class DBConnection {
     @Override
     protected Object clone() throws CloneNotSupportedException {
         throw new CloneNotSupportedException("Clone is not allowed.");
+    }
+    
+    public int executeUpdate(String sql, Object... args) throws ExecutionException {
+        Statement statement = null;
+        try {
+            statement = con.createStatement();
+            return statement.executeUpdate(String.format(sql, args));
+        } catch (SQLException e) {
+            plugin.log.log(Level.SEVERE, "Error executing sql update", e);
+            throw new ExecutionException(e);
+        } finally {
+            closeStatement(statement);
+        }
+    }
+    
+    public ResultSet executeQuery(String sql, Object... args) throws ExecutionException {
+        Statement statement = null;
+        try {
+            statement = con.createStatement();
+            ResultSet result = statement.executeQuery(String.format(sql, args));
+            return result;
+        } catch (SQLException e) {
+            plugin.log.log(Level.SEVERE, "Error executing sql query", e);
+            closeStatement(statement);
+            throw new ExecutionException(e);
+        }
+    }
+    
+    // Shortcut method for queries that return a single int
+    public int executeQueryInt(String sql, Object... args) throws ExecutionException, IllegalStateException {
+        ResultSet rs = null;
+        try {
+            rs = executeQuery(sql, args);
+            if (rs.next()) {
+                return rs.getInt(1);
+            } else {
+                throw new IllegalStateException("This query does not return an int");
+            }
+        } catch (SQLException e) {
+            plugin.log.log(Level.SEVERE, "Error executing sql query", e);
+            throw new ExecutionException(e);
+        } finally {
+            closeResultSet(rs);
+        }
+        
+    }
+    
+    public void closeStatement(Statement statement) {
+        if (statement != null) {
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                plugin.log.log(Level.WARNING, "Unable to close statment", e);
+            }
+        }
+    }
+    
+    public void closeResultSet(ResultSet rs) {
+        if (rs != null) {
+            try {
+                rs.getStatement().close();
+                rs.close();
+            } catch (SQLException e) {
+                plugin.log.log(Level.WARNING, "Unable to close ResultSet", e);
+            }
+        }
     }
 }
 

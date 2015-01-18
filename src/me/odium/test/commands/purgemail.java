@@ -11,21 +11,11 @@ public class purgemail implements CommandExecutor {
 
   public simplemail plugin;
   public purgemail(simplemail plugin)  {
-    this.plugin = plugin;
+      this.plugin = plugin;
   }
 
-  //DBConnection service = DBConnection.getInstance();
-  //ResultSet rs;
-  //Statement stmt;
-  //Connection con;
-
   public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)  {    
-//    Player player = null;
-//    if (sender instanceof Player) {
-//      player = (Player) sender;
-//    }    
-    sender.sendMessage(plugin.GRAY+"[SimpleMail] "+ChatColor.GRAY+"Purged "+ChatColor.GREEN+plugin.expireMail()+ChatColor.GRAY+" expired messages");
-    return true;
-    
+      sender.sendMessage(ChatColor.GRAY + "[SimpleMail] "+ChatColor.GRAY + "Purged " + ChatColor.GREEN + plugin.expireMail() + ChatColor.GRAY+" expired messages");
+      return true;
   }
 }

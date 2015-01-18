@@ -1,13 +1,11 @@
 package me.odium.test.commands;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.concurrent.ExecutionException;
+
 import me.odium.test.DBConnection;
 import me.odium.test.Lookup;
 import me.odium.test.Lookup.LookupCallback;
+import me.odium.test.Statements;
 import me.odium.test.simplemail;
 
 import org.apache.commons.lang.StringUtils;
@@ -43,55 +41,33 @@ public class sendmail implements CommandExecutor {
                     sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "That player does not exist.");
                     return;
                 }
-                Connection con = null;
-                Statement stmt = null;
-                ResultSet rs = null;
-                PreparedStatement ps = null;
+                
                 try {
-                    con = service.getConnection();
-                    stmt = con.createStatement();
-
-                    rs = stmt.executeQuery("SELECT COUNT(target) AS inboxtotal FROM SM_Mail WHERE target_id='" + player.getUniqueId() + "'");
-                    rs.next();
-                    int MaxMailboxSize = plugin.getConfig().getInt("MaxMailboxSize");
-                    if (rs.getInt("inboxtotal") >= MaxMailboxSize) {
-                        sender.sendMessage(plugin.GRAY + "[SimpleMail] " + plugin.RED + "Player's Inbox is full");
+                    int count = service.executeQueryInt(Statements.InboxCount, player.getUniqueId());
+                    int maxSize = plugin.getConfig().getInt("MaxMailboxSize");
+                    
+                    if (count >= maxSize) {
+                        sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "Player's Inbox is full");
                         return;
                     }
-                    ps = con.prepareStatement("INSERT INTO SM_Mail " + "(sender_id, sender, target_id, target, date, message, isread, expiration) VALUES "
-                            + "(?,?,?,?,NOW(),?,0,NULL);");
-                    if (sender instanceof Player) {
-                        ps.setString(2, ((Player)sender).getName());
-                        ps.setString(1, ((Player)sender).getUniqueId().toString());
-                    } else {
-                        ps.setString(2, "Server");
-                    }
                     
-                    ps.setString(3, player.getUniqueId().toString());
-                    ps.setString(4, player.getName());
+                    service.executeUpdate(Statements.SendMail,
+                            (sender instanceof Player ? ((Player)sender).getUniqueId() : null),
+                            sender.getName(),
+                            player.getUniqueId(),
+                            player.getName(),
+                            message);
                     
-                    ps.setString(5, message);
-
-                    ps.executeUpdate();
-
-                    sender.sendMessage(plugin.GRAY + "[SimpleMail] " + ChatColor.GREEN + "Message Sent to: " + ChatColor.WHITE + player.getName());
-                    String msg = plugin.GRAY + "[SimpleMail] " + plugin.GREEN + "You've Got Mail!" + plugin.GOLD + " [/Mail]";
+                    // Notify
+                    sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.GREEN + "Message Sent to: " + ChatColor.WHITE + player.getName());
+                    String msg = ChatColor.GRAY + "[SimpleMail] " + ChatColor.GREEN + "You've Got Mail!" + ChatColor.GOLD + " [/inbox]";
                     if (player.isOnline()) {
                         player.getPlayer().sendMessage(msg);
                     } else {
                         plugin.SendPluginMessage("Message", player.getName(), msg);
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    try {
-                        if (rs != null) { rs.close(); rs = null; }
-                        if (stmt != null) { stmt.close(); stmt = null; }
-                        if (ps != null) { ps.close(); ps = null; }
-                    } catch (SQLException e) {
-                        System.out.println("ERROR: Failed to close Statement, PreparedStatement or ResultSet!");
-                        e.printStackTrace();
-                    }
+                } catch (ExecutionException e) {
+                    sender.sendMessage(ChatColor.RED + "An internal error occured while executing this command.");
                 }
             }
         });

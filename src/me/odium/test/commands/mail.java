@@ -23,14 +23,14 @@ public class mail implements CommandExecutor {
     if (args.length == 0) {
       if (player == null) {
         sender.sendMessage(ChatColor.GOLD+"[ SimpleMail "+plugin.getDescription().getVersion()+" ]");
-        sender.sendMessage(plugin.GREEN+" /inbox " +plugin.WHITE+"- Check your inbox");
-        sender.sendMessage(plugin.GREEN+" /outbox " +plugin.WHITE+"- Display your outbox");
-        sender.sendMessage(plugin.GREEN+" /sendmail <player> <msg> " +plugin.WHITE+"- Send a message");
-        sender.sendMessage(plugin.GREEN+" /readmail <id> " +plugin.WHITE+"- Read a message");
-        sender.sendMessage(plugin.GREEN+" /delmail <id> " +plugin.WHITE+"- Delete a message");
-        sender.sendMessage(plugin.GOLD+"[Admin Commands]");
-        sender.sendMessage(plugin.AQUA+" /mailboxes " +plugin.WHITE+"- List active mailboxes");
-        sender.sendMessage(plugin.AQUA+" /clearmailbox <playername> " +plugin.WHITE+"- Clear an active mailbox");
+        sender.sendMessage(ChatColor.GREEN+" /inbox " +ChatColor.WHITE+"- Check your inbox");
+        sender.sendMessage(ChatColor.GREEN+" /outbox " +ChatColor.WHITE+"- Display your outbox");
+        sender.sendMessage(ChatColor.GREEN+" /sendmail <player> <msg> " +ChatColor.WHITE+"- Send a message");
+        sender.sendMessage(ChatColor.GREEN+" /readmail <id> " +ChatColor.WHITE+"- Read a message");
+        sender.sendMessage(ChatColor.GREEN+" /delmail <id> " +ChatColor.WHITE+"- Delete a message");
+        sender.sendMessage(ChatColor.GOLD+"[Admin Commands]");
+        sender.sendMessage(ChatColor.AQUA+" /mailboxes " +ChatColor.WHITE+"- List active mailboxes");
+        sender.sendMessage(ChatColor.AQUA+" /clearmailbox <playername> " +ChatColor.WHITE+"- Clear an active mailbox");
         return true;
       }      
       plugin.displayHelp(sender);
@@ -38,10 +38,10 @@ public class mail implements CommandExecutor {
     } else if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
       if(player == null || player.hasPermission("simplemail.admin")) {
         plugin.reloadConfig();
-        sender.sendMessage(plugin.GRAY+"[SimpleMail] "+plugin.GREEN + "Config Reloaded!");
+        sender.sendMessage(ChatColor.GRAY+"[SimpleMail] "+ChatColor.GREEN + "Config Reloaded!");
         return true;
       } else {
-        sender.sendMessage(plugin.GRAY+"[SimpleMail] "+plugin.RED + "You do not have permission");
+        sender.sendMessage(ChatColor.GRAY+"[SimpleMail] "+ChatColor.RED + "You do not have permission");
       }
     }
 

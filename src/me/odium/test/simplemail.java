@@ -152,6 +152,10 @@ public class simplemail extends JavaPlugin {
     }
   }
   
+  public static String format(String format, Object... args) {
+      return String.format(ChatColor.translateAlternateColorCodes('&', format), args);
+  }
+  
   public void SendPluginMessage(String subchannel, String data1, String data2) {
 	  ByteArrayDataOutput out = ByteStreams.newDataOutput();
 	  out.writeUTF(subchannel);
