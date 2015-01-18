@@ -52,7 +52,7 @@ public class CommandDelMail implements CommandExecutor {
             }
             
 		    // Delete it
-            service.executeUpdate("DELETE FROM SM_Mail WHERE id=%d and target_id='%s'", messageId, player.getUniqueId());
+            service.executeUpdate(Statements.Delete, messageId, player.getUniqueId());
             sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.GREEN + "Message Deleted.");
 		} catch (ExecutionException e) {
 		    sender.sendMessage(ChatColor.RED + "An internal error occured while executing this command.");

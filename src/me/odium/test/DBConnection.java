@@ -22,7 +22,8 @@ public class DBConnection {
     private static DBConnection instance = new DBConnection();
     public Connection con = null;
     public  int Timeout = 30;
-    public Statement stmt;
+    
+    private PreparedStatement[] mStatements;
 
     public SimpleMailPlugin plugin;
 
@@ -49,6 +50,7 @@ public class DBConnection {
         try {
             Class.forName("com.mysql.jdbc.Driver");
         	con = DriverManager.getConnection("jdbc:mysql://" + host + "/" + db, user, pass);
+        	initialize();
         } catch (SQLException e) {
             plugin.getLogger().severe("Unable to open database!");
             e.printStackTrace();
@@ -60,13 +62,27 @@ public class DBConnection {
         }
         return true;
     }
+    
+    private void initialize() throws SQLException {
+        mStatements = new PreparedStatement[Statements.values().length];
+        int next = 0;
+        for (Statements statement : Statements.values()) {
+            mStatements[next++] = con.prepareStatement(statement.getSQL());
+        }
+    }
 
     public Connection getConnection() {
         return con;
     }
 
     public void closeConnection() {
-        try { con.close(); } catch (Exception ignore) {}
+        try {
+            for (PreparedStatement statement : mStatements) {
+                statement.close();
+            }
+            con.close();
+        } catch (Exception ignore) {
+        }
     }
 
     public void createTable() {
@@ -190,46 +206,53 @@ public class DBConnection {
         stmt.setQueryTimeout(Timeout);  // set timeout to 30 sec.
     }
 
-    public Statement getStatement() {
-        return stmt;
-    }
-
     @Override
     protected Object clone() throws CloneNotSupportedException {
         throw new CloneNotSupportedException("Clone is not allowed.");
     }
     
-    public int executeUpdate(String sql, Object... args) throws ExecutionException {
-        Statement statement = null;
-        try {
-            statement = con.createStatement();
-            return statement.executeUpdate(String.format(sql, args));
-        } catch (SQLException e) {
-            plugin.log.log(Level.SEVERE, "Error executing sql update", e);
-            throw new ExecutionException(e);
-        } finally {
-            closeStatement(statement);
+    private void setParameters(PreparedStatement statement, Object... args) throws SQLException {
+        for (int i = 0; i < args.length; ++i) {
+            if (args[i] instanceof Number) {
+                statement.setObject(i+1, args[i]);
+            } else if (args[i] instanceof String) {
+                statement.setString(i+1, (String)args[i]);
+            } else {
+                statement.setString(i+1, String.valueOf(args[i]));
+            }
         }
     }
     
-    public ResultSet executeQuery(String sql, Object... args) throws ExecutionException {
-        Statement statement = null;
+    public int executeUpdate(Statements type, Object... args) throws ExecutionException {
         try {
-            statement = con.createStatement();
-            ResultSet result = statement.executeQuery(String.format(sql, args));
+            PreparedStatement statement = mStatements[type.ordinal()];
+            setParameters(statement, args);
+            
+            return statement.executeUpdate();
+        } catch (SQLException e) {
+            plugin.log.log(Level.SEVERE, "Error executing sql update", e);
+            throw new ExecutionException(e);
+        }
+    }
+    
+    public ResultSet executeQuery(Statements type, Object... args) throws ExecutionException {
+        try {
+            PreparedStatement statement = mStatements[type.ordinal()];
+            setParameters(statement, args);
+
+            ResultSet result = statement.executeQuery();
             return result;
         } catch (SQLException e) {
             plugin.log.log(Level.SEVERE, "Error executing sql query", e);
-            closeStatement(statement);
             throw new ExecutionException(e);
         }
     }
     
     // Shortcut method for queries that return a single int
-    public int executeQueryInt(String sql, Object... args) throws ExecutionException, IllegalStateException {
+    public int executeQueryInt(Statements type, Object... args) throws ExecutionException, IllegalStateException {
         ResultSet rs = null;
         try {
-            rs = executeQuery(sql, args);
+            rs = executeQuery(type, args);
             if (rs.next()) {
                 return rs.getInt(1);
             } else {
@@ -257,7 +280,9 @@ public class DBConnection {
     public void closeResultSet(ResultSet rs) {
         if (rs != null) {
             try {
-                rs.getStatement().close();
+                if (!(rs.getStatement() instanceof PreparedStatement)) {
+                    rs.getStatement().close();
+                }
                 rs.close();
             } catch (SQLException e) {
                 plugin.log.log(Level.WARNING, "Unable to close ResultSet", e);

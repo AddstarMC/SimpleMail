@@ -60,7 +60,7 @@ public class CommandSendMail implements CommandExecutor {
                     
                     // Notify
                     sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.GREEN + "Message Sent to: " + ChatColor.WHITE + player.getName());
-                    String msg = ChatColor.GRAY + "[SimpleMail] " + ChatColor.GREEN + "You've Got Mail!" + ChatColor.GOLD + " [/inbox]";
+                    String msg = ChatColor.GRAY + "[SimpleMail] " + ChatColor.GREEN + "You've Got Mail!" + ChatColor.GOLD + " [/mail]";
                     if (player.isOnline()) {
                         player.getPlayer().sendMessage(msg);
                     } else {
