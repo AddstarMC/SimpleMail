@@ -3,6 +3,7 @@ package me.odium.test.commands;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
 
 import me.odium.test.DBConnection;
 import me.odium.test.simplemail;
@@ -46,7 +47,7 @@ public class inbox implements CommandExecutor {
         }
       }
     } catch(Exception e) {
-      plugin.log.info("[SimpleMail] "+"Error: "+e);        
+        plugin.log.log(Level.SEVERE, "An error occured while reading inbox", e);       
       if (e.toString().contains("locked")) {
         sender.sendMessage(plugin.GRAY+"[SimpleMail] "+plugin.GOLD+"The database is busy. Please wait a moment before trying again...");
       } else {

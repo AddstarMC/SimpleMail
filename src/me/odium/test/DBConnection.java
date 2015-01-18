@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.UUID;
+import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -77,7 +78,7 @@ public class DBConnection {
             String queryC = "CREATE TABLE IF NOT EXISTS SM_Mail (id INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT, sender_id char(36), sender varchar(16), target_id char(36), target varchar(16), date datetime, message text, isread tinyint(1), expiration datetime)";
             stmt.executeUpdate(queryC);
         } catch(Exception e) {
-            plugin.log.info("[SimpleMail] "+"Error: "+e);
+            plugin.log.log(Level.SEVERE, "An error occured while creating the table", e);
         }
     }
     
@@ -106,16 +107,16 @@ public class DBConnection {
             statement.executeUpdate("ALTER TABLE SM_Mail ADD INDEX idx_sender (sender_id)");
             statement.executeUpdate("ALTER TABLE SM_Mail ADD INDEX idx_target (target_id)");
             
-            plugin.log.info("[SimpleMail] Converting SimpleMail database. This may take a while:");
+            plugin.log.info("Converting SimpleMail database. This may take a while:");
             
             // Make a cache of the offline player files for fast resolution of names
-            plugin.log.info("[SimpleMail] Building cache using offline player files...");
+            plugin.log.info("Building cache using offline player files...");
             HashMap<String, UUID> nameMap = new HashMap<String, UUID>();
             for (OfflinePlayer player : Bukkit.getOfflinePlayers()) {
                 nameMap.put(player.getName().toLowerCase(), player.getUniqueId());
             }
             
-            plugin.log.info("[SimpleMail] Begining convert using cache");
+            plugin.log.info("Begining convert using cache");
             PreparedStatement bulkUpdate = con.prepareStatement("UPDATE SM_Mail SET sender_id=?,target_id=? WHERE id=?");
             ResultSet results = statement.executeQuery("SELECT id,sender,target FROM SM_Mail");
             
@@ -149,27 +150,27 @@ public class DBConnection {
                 }
             }
             
-            plugin.log.info("[SimpleMail] Resolved names of " + converted + " entries.");
+            plugin.log.info("Resolved names of " + converted + " entries.");
             if (failed != 0) {
-                plugin.log.info("[SimpleMail] " + failed + " were not resolved or only partially resolved using the player files.");
+                plugin.log.info(failed + " were not resolved or only partially resolved using the player files.");
             }
             
-            plugin.log.info("[SimpleMail] Pushing changes to DB");
+            plugin.log.info("Pushing changes to DB");
             bulkUpdate.executeBatch();
             
             con.commit();
             
-            plugin.log.info("[SimpleMail] Conversion complete. You are now using UUIDs");
+            plugin.log.info("Conversion complete. You are now using UUIDs");
             
             bulkUpdate.close();
             results.close();
             
         } catch(SQLException e) {
-            plugin.log.info("[SimpleMail] "+"Error: "+e);
+            plugin.log.log(Level.SEVERE, "An error occurede while converting the table", e);
             try {
                 con.rollback();
             } catch (SQLException ex) {
-                plugin.log.info("[SimpleMail] Unable to rollback the update " + ex);
+                plugin.log.log(Level.SEVERE, "Unable to rollback the update", ex);
             }
         } finally {
             try {

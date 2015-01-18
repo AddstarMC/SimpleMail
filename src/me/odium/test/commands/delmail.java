@@ -3,6 +3,7 @@ package me.odium.test.commands;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
 
 import me.odium.test.DBConnection;
 import me.odium.test.simplemail;
@@ -54,7 +55,7 @@ public class delmail implements CommandExecutor {
 			} else if (e.toString().contains("java.lang.ArrayIndexOutOfBoundsException")) {
 				sender.sendMessage("/delmail <id>");
 			} else {
-				plugin.log.info("[SimpleMail] " + "Error: " + e);
+			    plugin.log.log(Level.SEVERE, "An error occured while deleting the mail", e);
 				player.sendMessage(plugin.GRAY + "[SimpleMail] " + plugin.RED + "Error: " + plugin.WHITE + e);
 			}
 		} finally {

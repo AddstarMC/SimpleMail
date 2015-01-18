@@ -3,6 +3,8 @@ package me.odium.test.commands;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.logging.Level;
+
 import me.odium.test.DBConnection;
 import me.odium.test.Lookup;
 import me.odium.test.Lookup.LookupCallback;
@@ -46,7 +48,7 @@ public class clearmailbox implements CommandExecutor {
                     stmt.executeUpdate("DELETE FROM SM_Mail WHERE target_id='" + player.getUniqueId().toString() + "'");
                     sender.sendMessage(plugin.GRAY + "[SimpleMail] " + plugin.GREEN + "Mailbox Cleared.");
                 } catch (Exception e) {
-                    plugin.log.info("[SimpleMail] " + "Error: " + e);
+                    plugin.log.log(Level.SEVERE, "An error occured while clearing an inbox", e);
                     if (e.toString().contains("locked")) {
                         sender.sendMessage(plugin.GRAY + "[SimpleMail] " + plugin.GOLD + "The database is busy. Please wait a moment before trying again...");
                     } else {

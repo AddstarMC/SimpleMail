@@ -3,6 +3,7 @@ package me.odium.test;
 import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import me.odium.test.commands.clearmailbox;
@@ -29,7 +30,7 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 
 public class simplemail extends JavaPlugin {
-  public Logger log = Logger.getLogger("Minecraft");
+  public Logger log = getLogger();
 
   public ChatColor GREEN = ChatColor.GREEN;
   public ChatColor RED = ChatColor.RED;
@@ -41,7 +42,6 @@ public class simplemail extends JavaPlugin {
   DBConnection service = DBConnection.getInstance();
 
   public void onEnable(){    
-    log.info("[" + getDescription().getName() + "] " + getDescription().getVersion() + " enabled.");
     // Load Config.yml
     FileConfiguration cfg = getConfig();
     FileConfigurationOptions cfgOptions = cfg.options();
@@ -74,15 +74,14 @@ public class simplemail extends JavaPlugin {
     }
     this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
     // Check for and delete any expired tickets, display progress.
-    log.info("[SimpleMail] "+expireMail()+" Expired Messages Cleared");
+    log.info(expireMail()+" Expired Messages Cleared");
   }
 
   public void onDisable(){    
     // Check for and delete any expired tickets, display progress.
-    log.info("[SimpleMail] "+expireMail()+" Expired Messages Cleared");
+    log.info(expireMail()+" Expired Messages Cleared");
     // Close DB connection
     service.closeConnection();
-    log.info("[" + getDescription().getName() + "] " + getDescription().getVersion() + " disabled.");
   }  
 
   public String myGetPlayerName(String name) { 
@@ -132,7 +131,7 @@ public class simplemail extends JavaPlugin {
       stmt = con.createStatement();
       expirations = stmt.executeUpdate("DELETE FROM SM_Mail WHERE expiration IS NOT NULL AND expiration < NOW()");
     } catch(Exception e) {
-      log.info("[SimpleMail] "+"Error: "+e);
+        log.log(Level.SEVERE, "An error occured while expiring messages", e);
       e.printStackTrace();
     }  
     return expirations;
