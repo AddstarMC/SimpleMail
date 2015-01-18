@@ -6,7 +6,7 @@ import me.odium.test.DBConnection;
 import me.odium.test.Lookup;
 import me.odium.test.Lookup.LookupCallback;
 import me.odium.test.Statements;
-import me.odium.test.simplemail;
+import me.odium.test.SimpleMailPlugin;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
@@ -16,11 +16,11 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class sendmail implements CommandExecutor {
+public class CommandSendMail implements CommandExecutor {
 
-	public simplemail plugin;
+	public SimpleMailPlugin plugin;
 
-	public sendmail(simplemail plugin) {
+	public CommandSendMail(SimpleMailPlugin plugin) {
 		this.plugin = plugin;
 	}
 

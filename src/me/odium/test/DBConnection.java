@@ -7,8 +7,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -18,8 +16,7 @@ import org.bukkit.OfflinePlayer;
 
 import com.google.common.base.Charsets;
 
-import me.odium.test.simplemail;
-
+import me.odium.test.SimpleMailPlugin;
 
 public class DBConnection {
     private static DBConnection instance = new DBConnection();
@@ -27,7 +24,7 @@ public class DBConnection {
     public  int Timeout = 30;
     public Statement stmt;
 
-    public simplemail plugin;
+    public SimpleMailPlugin plugin;
 
     private DBConnection() {
     }
@@ -40,7 +37,7 @@ public class DBConnection {
      * We set the plugin that is to be used for these connections.
      * @param plugin
      */
-    public void setPlugin(simplemail plugin) {
+    public void setPlugin(SimpleMailPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -182,8 +179,6 @@ public class DBConnection {
                 con.setAutoCommit(true);
             } catch (SQLException e) {
             }
-            
-            
         }
     }
 
@@ -195,12 +190,8 @@ public class DBConnection {
         stmt.setQueryTimeout(Timeout);  // set timeout to 30 sec.
     }
 
-    public  Statement getStatement() {
+    public Statement getStatement() {
         return stmt;
-    }
-
-    public void executeStmt(String instruction) throws SQLException {
-        stmt.executeUpdate(instruction);
     }
 
     @Override
@@ -274,54 +265,3 @@ public class DBConnection {
         }
     }
 }
-
-//public class DBConnection {
-//
-//  public simplemail plugin;
-//  public DBConnection(simplemail plugin)  {
-//    this.plugin = plugin;
-//  }
-//
-//  public Connection DBConnect() {
-//    Connection con;
-//    try{
-//      Class.forName("org.sqlite.JDBC");
-//      con = DriverManager.getConnection("jdbc:sqlite:test.db");
-//      return con;
-//    } catch(Exception e) {
-//      System.err.println(e);
-//    }
-//    return null;
-//  }
-//  
-//  public Statement DBStatement() {
-//    java.sql.Statement stmt;
-//    try {
-//      stmt = DBConnect().createStatement();
-//      return stmt;
-//    } catch(Exception e) {
-//      System.err.println(e);
-//    }
-//    return null;
-//  }
-//
-//  public void DBCreatetable() {
-//    Statement stmt;
-//    try {
-//      stmt = DBStatement();
-//      String queryC = "CREATE TABLE IF NOT EXISTS SM_Mail (id INTEGER PRIMARY KEY, sender varchar(16), target varchar(16), date timestamp, message varchar(30), read varchar(10))";
-//      stmt.executeUpdate(queryC);
-//    } catch(Exception e) {
-//      System.err.println(e);
-//    }
-//  }  
-// 
-//  public void DBcloseconnection() {
-//    try{    
-//      DBConnect().close();    
-//    } catch(Exception e) {
-//      System.err.println(e);
-//    }
-//  }
-//
-//}

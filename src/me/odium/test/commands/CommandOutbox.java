@@ -7,7 +7,7 @@ import java.util.logging.Level;
 
 import me.odium.test.DBConnection;
 import me.odium.test.Statements;
-import me.odium.test.simplemail;
+import me.odium.test.SimpleMailPlugin;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -15,11 +15,11 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class outbox implements CommandExecutor {
+public class CommandOutbox implements CommandExecutor {
 
-	public simplemail plugin;
+	public SimpleMailPlugin plugin;
 
-	public outbox(simplemail plugin) {
+	public CommandOutbox(SimpleMailPlugin plugin) {
 		this.plugin = plugin;
 	}
 
@@ -38,9 +38,9 @@ public class outbox implements CommandExecutor {
 	        while(rs.next()) {
 	            int isread = rs.getInt("isread");
 	            if (isread == 0) {
-	                sender.sendMessage(simplemail.format("&7  [&a%d&7]         %s          %s", rs.getInt("id"), rs.getString("target"), rs.getString("fdate")));         
+	                sender.sendMessage(SimpleMailPlugin.format("&7  [&a%d&7]         %s          %s", rs.getInt("id"), rs.getString("target"), rs.getString("fdate")));         
 	            } else {
-	                sender.sendMessage(simplemail.format("&7  [%d]         %s          %s", rs.getInt("id"), rs.getString("target"), rs.getString("fdate")));
+	                sender.sendMessage(SimpleMailPlugin.format("&7  [%d]         %s          %s", rs.getInt("id"), rs.getString("target"), rs.getString("fdate")));
 	            }
 	        }
 	    } catch(ExecutionException e) {

@@ -1,6 +1,6 @@
 package me.odium.test.commands;
 
-import me.odium.test.simplemail;
+import me.odium.test.SimpleMailPlugin;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -8,10 +8,10 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class mail implements CommandExecutor {   
+public class CommandMail implements CommandExecutor {   
 
-  public simplemail plugin;
-  public mail(simplemail plugin)  {
+  public SimpleMailPlugin plugin;
+  public CommandMail(SimpleMailPlugin plugin)  {
     this.plugin = plugin;
   }
 

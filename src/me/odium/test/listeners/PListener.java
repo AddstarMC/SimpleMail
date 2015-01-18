@@ -5,7 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import me.odium.test.DBConnection;
-import me.odium.test.simplemail;
+import me.odium.test.SimpleMailPlugin;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -16,8 +16,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 public class PListener implements Listener {
 
-	public simplemail plugin;
-	public PListener(simplemail plugin) {    
+	public SimpleMailPlugin plugin;
+	public PListener(SimpleMailPlugin plugin) {    
 		this.plugin = plugin;    
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);  
 	}

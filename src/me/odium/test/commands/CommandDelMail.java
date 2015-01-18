@@ -3,7 +3,7 @@ package me.odium.test.commands;
 import java.util.concurrent.ExecutionException;
 import me.odium.test.DBConnection;
 import me.odium.test.Statements;
-import me.odium.test.simplemail;
+import me.odium.test.SimpleMailPlugin;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -11,11 +11,11 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class delmail implements CommandExecutor {
+public class CommandDelMail implements CommandExecutor {
 
-	public simplemail plugin;
+	public SimpleMailPlugin plugin;
 
-	public delmail(simplemail plugin) {
+	public CommandDelMail(SimpleMailPlugin plugin) {
 		this.plugin = plugin;
 	}
 

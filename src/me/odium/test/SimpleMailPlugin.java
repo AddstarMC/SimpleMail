@@ -6,15 +6,15 @@ import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import me.odium.test.commands.clearmailbox;
-import me.odium.test.commands.delmail;
-import me.odium.test.commands.inbox;
-import me.odium.test.commands.mail;
-import me.odium.test.commands.mailboxes;
-import me.odium.test.commands.outbox;
-import me.odium.test.commands.purgemail;
-import me.odium.test.commands.readmail;
-import me.odium.test.commands.sendmail;
+import me.odium.test.commands.CommandClearMailbox;
+import me.odium.test.commands.CommandDelMail;
+import me.odium.test.commands.CommandInbox;
+import me.odium.test.commands.CommandMail;
+import me.odium.test.commands.CommandMailboxes;
+import me.odium.test.commands.CommandOutbox;
+import me.odium.test.commands.CommandPurgeMail;
+import me.odium.test.commands.CommandReadMail;
+import me.odium.test.commands.CommandSendMail;
 import me.odium.test.listeners.PListener;
 
 import org.bukkit.Bukkit;
@@ -29,7 +29,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 
-public class simplemail extends JavaPlugin {
+public class SimpleMailPlugin extends JavaPlugin {
   public Logger log = getLogger();
 
   public ChatColor GREEN = ChatColor.GREEN;
@@ -50,15 +50,15 @@ public class simplemail extends JavaPlugin {
     saveConfig();
     // declare new listener
     new PListener(this);
-    this.getCommand("mail").setExecutor(new mail(this));
-    this.getCommand("readmail").setExecutor(new readmail(this));
-    this.getCommand("delmail").setExecutor(new delmail(this));
-    this.getCommand("sendmail").setExecutor(new sendmail(this));
-    this.getCommand("clearmailbox").setExecutor(new clearmailbox(this));
-    this.getCommand("inbox").setExecutor(new inbox(this));
-    this.getCommand("outbox").setExecutor(new outbox(this));
-    this.getCommand("mailboxes").setExecutor(new mailboxes(this));
-    this.getCommand("purgemail").setExecutor(new purgemail(this));
+    this.getCommand("mail").setExecutor(new CommandMail(this));
+    this.getCommand("readmail").setExecutor(new CommandReadMail(this));
+    this.getCommand("delmail").setExecutor(new CommandDelMail(this));
+    this.getCommand("sendmail").setExecutor(new CommandSendMail(this));
+    this.getCommand("clearmailbox").setExecutor(new CommandClearMailbox(this));
+    this.getCommand("inbox").setExecutor(new CommandInbox(this));
+    this.getCommand("outbox").setExecutor(new CommandOutbox(this));
+    this.getCommand("mailboxes").setExecutor(new CommandMailboxes(this));
+    this.getCommand("purgemail").setExecutor(new CommandPurgeMail(this));
     // Create connection & table
     try {
       service.setPlugin(this);

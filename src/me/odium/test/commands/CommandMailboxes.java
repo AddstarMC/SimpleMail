@@ -7,18 +7,18 @@ import java.util.logging.Level;
 
 import me.odium.test.DBConnection;
 import me.odium.test.Statements;
-import me.odium.test.simplemail;
+import me.odium.test.SimpleMailPlugin;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-public class mailboxes implements CommandExecutor {
+public class CommandMailboxes implements CommandExecutor {
 
-	public simplemail plugin;
+	public SimpleMailPlugin plugin;
 
-	public mailboxes(simplemail plugin) {
+	public CommandMailboxes(SimpleMailPlugin plugin) {
 		this.plugin = plugin;
 	}
 

@@ -8,7 +8,7 @@ import java.util.logging.Level;
 
 import me.odium.test.DBConnection;
 import me.odium.test.Statements;
-import me.odium.test.simplemail;
+import me.odium.test.SimpleMailPlugin;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -16,11 +16,11 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class readmail implements CommandExecutor {
+public class CommandReadMail implements CommandExecutor {
 
-	public simplemail plugin;
+	public SimpleMailPlugin plugin;
 
-	public readmail(simplemail plugin) {
+	public CommandReadMail(SimpleMailPlugin plugin) {
 		this.plugin = plugin;
 	}
 

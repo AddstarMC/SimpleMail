@@ -1,16 +1,16 @@
 package me.odium.test.commands;
 
-import me.odium.test.simplemail;
+import me.odium.test.SimpleMailPlugin;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-public class purgemail implements CommandExecutor {   
+public class CommandPurgeMail implements CommandExecutor {   
 
-  public simplemail plugin;
-  public purgemail(simplemail plugin)  {
+  public SimpleMailPlugin plugin;
+  public CommandPurgeMail(SimpleMailPlugin plugin)  {
       this.plugin = plugin;
   }
 
