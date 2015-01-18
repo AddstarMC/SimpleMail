@@ -1,11 +1,10 @@
 package me.odium.test.listeners;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.concurrent.ExecutionException;
 
 import me.odium.test.DBConnection;
 import me.odium.test.SimpleMailPlugin;
+import me.odium.test.Statements;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -18,44 +17,28 @@ public class PListener implements Listener {
 
 	public SimpleMailPlugin plugin;
 	public PListener(SimpleMailPlugin plugin) {    
-		this.plugin = plugin;    
-		plugin.getServer().getPluginManager().registerEvents(this, plugin);  
+		this.plugin = plugin;
+		plugin.getServer().getPluginManager().registerEvents(this, plugin);
 	}
-  
-  	DBConnection service = DBConnection.getInstance();
+
+  	private DBConnection service = DBConnection.getInstance();
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		if (plugin.getConfig().getBoolean("OnPlayerJoin.ShowNewMessages")) {
 			final Player player = event.getPlayer();
 			int Delay = plugin.getConfig().getInt("OnPlayerJoin.DelayInSeconds");
-			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Bukkit.getServer().getPluginManager().getPlugin("SimpleMail"), new Runnable() {
+			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 				public void run() {
 					if (!player.isOnline()) return;
-					Connection con = null;
-					java.sql.Statement stmt = null;
-					ResultSet rs = null;
-					try {        
-						con = service.getConnection();
-						stmt = con.createStatement();
-						rs = stmt.executeQuery("SELECT COUNT(target) AS inboxtotal FROM SM_Mail WHERE target_id='"+player.getUniqueId().toString()+"' AND isread=0");
-						if (rs.next()) {
-							final int total = rs.getInt("inboxtotal");
-							if(total > 0) {
-								player.sendMessage(plugin.GRAY+"[SimpleMail] "+plugin.GREEN+ "You have " + plugin.GOLD +total+plugin.GREEN+" new messages");
-							}
-						}
-						rs.close();
-					} catch(Exception e) {
-						e.printStackTrace();
-					} finally {
-						try {
-							if (rs != null) { rs.close(); rs = null; }
-							if (stmt != null) { stmt.close(); stmt = null; }
-						} catch (SQLException e) {
-							System.out.println("ERROR: Failed to close Statement or ResultSet!");
-							e.printStackTrace();
-						}
+					
+					try {
+					    int count = service.executeQueryInt(Statements.InboxCountUnread, player.getUniqueId());
+					    if(count > 0) {
+                            player.sendMessage(SimpleMailPlugin.format("&7[SimpleMail] &aYou have &6%d&a new messages", count));
+                        }
+					} catch (ExecutionException e) {
+					    // Say nothing
 					}
 	    	    }
 			}, Delay*20L);

@@ -1,5 +1,5 @@
 name: SimpleMail
-main: me.odium.test.simplemail
+main: me.odium.test.SimpleMailPlugin
 version: 0.3.8
 commands:
    mail:
