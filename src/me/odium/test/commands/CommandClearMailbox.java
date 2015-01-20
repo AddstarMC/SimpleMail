@@ -3,16 +3,17 @@ package me.odium.test.commands;
 import java.util.concurrent.ExecutionException;
 
 import me.odium.test.DBConnection;
-import me.odium.test.Lookup;
-import me.odium.test.Lookup.LookupCallback;
 import me.odium.test.Statements;
 import me.odium.test.SimpleMailPlugin;
 
 import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+
+import au.com.addstar.monolith.lookup.Lookup;
+import au.com.addstar.monolith.lookup.LookupCallback;
+import au.com.addstar.monolith.lookup.PlayerDefinition;
 
 public class CommandClearMailbox implements CommandExecutor {
 
@@ -30,10 +31,10 @@ public class CommandClearMailbox implements CommandExecutor {
 			return true;
 		}
 		
-		Lookup.resolve(plugin, args[0], new LookupCallback() {
+		Lookup.lookupPlayerName(args[0], new LookupCallback<PlayerDefinition>() {
             @Override
-            public void run(OfflinePlayer player) {
-                if (player == null) {
+            public void onResult(boolean success, PlayerDefinition player, Throwable error) {
+                if (!success) {
                     sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.GOLD + "Unknown player");
                     return;
                 }

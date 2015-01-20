@@ -3,18 +3,19 @@ package me.odium.test.commands;
 import java.util.concurrent.ExecutionException;
 
 import me.odium.test.DBConnection;
-import me.odium.test.Lookup;
-import me.odium.test.Lookup.LookupCallback;
 import me.odium.test.Statements;
 import me.odium.test.SimpleMailPlugin;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import au.com.addstar.monolith.lookup.Lookup;
+import au.com.addstar.monolith.lookup.LookupCallback;
+import au.com.addstar.monolith.lookup.PlayerDefinition;
 
 public class CommandSendMail implements CommandExecutor {
 
@@ -34,10 +35,10 @@ public class CommandSendMail implements CommandExecutor {
 		
 		final String message = StringUtils.join(args, ' ', 1, args.length);
 		
-		Lookup.resolve(plugin, args[0], new LookupCallback() {
+		Lookup.lookupPlayerName(args[0], new LookupCallback<PlayerDefinition>() {
             @Override
-            public void run(OfflinePlayer player) {
-                if (player == null) {
+            public void onResult(boolean success, PlayerDefinition player, Throwable error) {
+                if (!success) {
                     sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "That player does not exist.");
                     return;
                 }
@@ -61,7 +62,7 @@ public class CommandSendMail implements CommandExecutor {
                     // Notify
                     sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.GREEN + "Message Sent to: " + ChatColor.WHITE + player.getName());
                     String msg = ChatColor.GRAY + "[SimpleMail] " + ChatColor.GREEN + "You've Got Mail!" + ChatColor.GOLD + " [/mail]";
-                    if (player.isOnline()) {
+                    if (player.isLocal()) {
                         player.getPlayer().sendMessage(msg);
                     } else {
                         plugin.SendPluginMessage("Message", player.getName(), msg);

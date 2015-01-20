@@ -30,7 +30,6 @@ import com.google.common.io.ByteStreams;
 
 public class SimpleMailPlugin extends JavaPlugin {
     public Logger log = getLogger();
-
     private DBConnection service = DBConnection.getInstance();
 
     public void onEnable() {
@@ -40,6 +39,7 @@ public class SimpleMailPlugin extends JavaPlugin {
         cfgOptions.copyDefaults(true);
         cfgOptions.copyHeader(true);
         saveConfig();
+        
         // declare new listener
         new PListener(this);
         this.getCommand("mail").setExecutor(new CommandMail(this));
