@@ -29,9 +29,12 @@ public class CommandOutbox implements CommandExecutor {
 		Player player = null;
 		if (sender instanceof Player) {
 			player = (Player) sender;
+		} else {
+			sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "The outbox command cannot be used at console");
+			return true;
 		}
 
-		ResultSet rs = null;
+	ResultSet rs = null;
 	    try {
 	        rs = service.executeQuery(Statements.Outbox, player.getUniqueId());
 	        sender.sendMessage(ChatColor.GOLD + "- ID ----- TO ----------- DATE ------");

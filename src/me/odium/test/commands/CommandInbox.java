@@ -28,6 +28,9 @@ public class CommandInbox implements CommandExecutor {
     Player player = null;
     if (sender instanceof Player) {
       player = (Player) sender;
+    } else {
+        sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "The inbox command cannot be used at console");
+        return true;
     }
 
     ResultSet rs = null;

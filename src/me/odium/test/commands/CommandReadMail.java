@@ -10,6 +10,8 @@ import me.odium.test.DBConnection;
 import me.odium.test.Statements;
 import me.odium.test.SimpleMailPlugin;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.core.helpers.Strings;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -30,12 +32,12 @@ public class CommandReadMail implements CommandExecutor {
 		if (args.length != 1) {
 			return false;
 		}
-		
+
 		UUID senderId = null;
 		if (sender instanceof Player) {
 		    senderId = ((Player)sender).getUniqueId();
 		}
-		
+
 		// Parse the message id
         int messageId;
         try {
@@ -57,11 +59,23 @@ public class CommandReadMail implements CommandExecutor {
 				return true;
 			}
 
-			UUID target = UUID.fromString(rs.getString("target_id"));
-			UUID sentby = UUID.fromString(rs.getString("sender_id"));
+			boolean isSender = false;
+			boolean isTarget = false;
 
-			boolean isSender = sentby.equals(senderId);
-			boolean isTarget = target.equals(senderId);
+			// Note that sender_id will be null if the mail was sent by console
+			// The sender field should still be valid
+			String messageSender = rs.getString("sender_id");
+			if (!IsNullOrEmpty(messageSender)) {
+				UUID sentby = UUID.fromString(messageSender);
+				isSender = sentby.equals(senderId);
+			}
+
+			String messageTarget = rs.getString("target_id");
+			if (!IsNullOrEmpty(messageTarget)) {
+				UUID target = UUID.fromString(messageTarget);
+				isTarget = target.equals(senderId);
+			}
+
 			boolean isSpy = sender.hasPermission("SimpleMail.spy");
 			if (!isSender && !isTarget && !isSpy) {
 				sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "This is not your message to read.");
@@ -75,13 +89,21 @@ public class CommandReadMail implements CommandExecutor {
 				expiration = rs.getString("fexpiration");
 			}
 
+			String senderName = rs.getString("sender");
+			if (IsNullOrEmpty(senderName))
+				senderName = "[Unknown]";
+
+			String targetName = rs.getString("target");
+			if (IsNullOrEmpty(targetName))
+				targetName = "[Unknown]";
+
 			sender.sendMessage(ChatColor.GOLD + "Message Open: " + ChatColor.WHITE + rs.getString("id"));
 			if (!isSender)
-				sender.sendMessage(ChatColor.GRAY + " From: " + ChatColor.GREEN + rs.getString("sender"));
+				sender.sendMessage(ChatColor.GRAY + " From: " + ChatColor.GREEN + senderName);
 			else
 			    sender.sendMessage(ChatColor.GRAY + " From: " + ChatColor.GREEN + "Me");
 			if (!isTarget)
-				sender.sendMessage(ChatColor.GRAY + " To: " + ChatColor.GREEN + rs.getString("target"));
+				sender.sendMessage(ChatColor.GRAY + " To: " + ChatColor.GREEN + targetName);
 			else
 			    sender.sendMessage(ChatColor.GRAY + " To: " + ChatColor.GREEN + "Me");
 			sender.sendMessage(ChatColor.GRAY + " Date: " + ChatColor.WHITE + rs.getString("fdate"));
@@ -100,5 +122,13 @@ public class CommandReadMail implements CommandExecutor {
 		    service.closeResultSet(rs);
 		}
 		return true;
+	}
+
+	// Returns true if value is null, empty, or is the literal string "null"
+	private boolean IsNullOrEmpty(String value) {
+		if (StringUtils.isEmpty(value) || value.equalsIgnoreCase("null"))
+			return true;
+		else
+			return false;
 	}
 }
