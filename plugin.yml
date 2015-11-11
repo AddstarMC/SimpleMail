@@ -30,15 +30,23 @@ commands:
       description: delete a message
       permission: SimpleMail.inbox
       usage: /delmail <id>
-   mailboxes:
-      description: view active mailboxes
+   sentby:
+      description: Find messages sent by a username; supports % sign for wildcard
       permission: SimpleMail.admin
-      usage: /mailboxes
+      usage: /sentby
+   sentto:
+      description: Find messages sent to a username; supports % sign for wildcard
+      permission: SimpleMail.admin
+      usage: /sentto
+   mailboxes:
+      description: View active mailboxes; supports % sign for wildcard
+      permission: SimpleMail.admin
+      usage: /mailboxes <MaxRecords> <FilterString>
    clearmailbox:
-      description: clear an active mailbox
+      description: Clear an active mailbox (delete messages received by player)
       permission: SimpleMail.admin
       usage: /clearmailbox <player>
    purgemail:
-      description: Purge expired messages rom database
+      description: Purge expired messages from database
       permission: SimpleMail.admin
       usage: /purgemail

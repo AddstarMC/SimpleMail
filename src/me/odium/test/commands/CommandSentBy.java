@@ -15,34 +15,38 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class CommandOutbox implements CommandExecutor {
+public class CommandSentBy implements CommandExecutor {
 
 	public SimpleMailPlugin plugin;
 
-	public CommandOutbox(SimpleMailPlugin plugin) {
+	public CommandSentBy(SimpleMailPlugin plugin) {
 		this.plugin = plugin;
 	}
 
 	DBConnection service = DBConnection.getInstance();
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		Player player = null;
-		String senderName = "";
 
-		if (sender instanceof Player) {
-			player = (Player) sender;
-		} else {
-			// Command called from console
-			senderName = sender.getName();
+		boolean isSpy = sender.hasPermission("SimpleMail.spy");
+
+		if (!isSpy) {
+			sender.sendMessage("No permission to use /sentby");
+			return true;
 		}
+		
+		if (args.length < 1) {
+			sender.sendMessage("/sentby <PlayerName>");
+			sender.sendMessage("(use % sign for wildcard)");
+			return true;
+		}
+
+		String senderName = args[0];
 
 		ResultSet rs = null;
 		try {
-			if (senderName.isEmpty())
-				rs = service.executeQuery(Statements.Outbox, player.getUniqueId());
-			else
-				rs = service.executeQuery(Statements.OutboxConsole, senderName);
+			rs = service.executeQuery(Statements.OutboxConsole, senderName);
 
+			sender.sendMessage(ChatColor.GOLD + "Mail sent by " + senderName);
 			sender.sendMessage(ChatColor.GOLD + "- ID ----- TO ----------- DATE ------");
 			while (rs.next()) {
 				int isread = rs.getInt("isread");
@@ -53,10 +57,10 @@ public class CommandOutbox implements CommandExecutor {
 				}
 			}
 		} catch (ExecutionException e) {
-			sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "An internal error occured while reading your outbox");
+			sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "An internal error occured while finding mail by sender name");
 		} catch (SQLException e) {
 			plugin.log.log(Level.SEVERE, "Error executing sql query", e);
-			sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "An internal error occured while reading your outbox");
+			sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "An internal error occured while finding mail by sender name");
 		} finally {
 			service.closeResultSet(rs);
 		}

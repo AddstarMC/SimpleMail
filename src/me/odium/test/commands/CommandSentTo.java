@@ -15,34 +15,37 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class CommandInbox implements CommandExecutor {
+public class CommandSentTo implements CommandExecutor {
 
 	public SimpleMailPlugin plugin;
 
-	public CommandInbox(SimpleMailPlugin plugin) {
+	public CommandSentTo(SimpleMailPlugin plugin) {
 		this.plugin = plugin;
 	}
 
 	DBConnection service = DBConnection.getInstance();
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		Player player = null;
-		String targetName = "";
+		boolean isSpy = sender.hasPermission("SimpleMail.spy");
 
-		if (sender instanceof Player) {
-			player = (Player) sender;
-		} else {
-			// Command called from console
-			targetName = sender.getName();
+		if (!isSpy) {
+			sender.sendMessage("No permission to use /sentto");
+			return true;
 		}
+		
+		if (args.length < 1) {
+			sender.sendMessage("/sentto <PlayerName>");
+			sender.sendMessage("(use % sign for wildcard)");
+			return true;
+		}
+
+		String targetName = args[0];
 
 		ResultSet rs = null;
 		try {
-			if (targetName.isEmpty())
-				rs = service.executeQuery(Statements.Inbox, player.getUniqueId());
-			else
-				rs = service.executeQuery(Statements.InboxConsole, targetName);
+			rs = service.executeQuery(Statements.InboxConsole, targetName);
 
+			sender.sendMessage(ChatColor.GOLD + "Mail sent to " + targetName);
 			sender.sendMessage(ChatColor.GOLD + "- ID ----- FROM ----------- DATE ------");
 			while (rs.next()) {
 				int isread = rs.getInt("isread");
@@ -53,10 +56,10 @@ public class CommandInbox implements CommandExecutor {
 				}
 			}
 		} catch (ExecutionException e) {
-			sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "An internal error occured while reading your inbox");
+			sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "An internal error occured while finding mail by target name");
 		} catch (SQLException e) {
 			plugin.log.log(Level.SEVERE, "Error executing sql query", e);
-			sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "An internal error occured while reading your inbox");
+			sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "An internal error occured while finding mail by target name");
 		} finally {
 			service.closeResultSet(rs);
 		}

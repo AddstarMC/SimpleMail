@@ -9,8 +9,10 @@ public enum Statements {
     ReadMail("SELECT *,DATE_FORMAT(date, '%e/%b/%Y %H:%i') as fdate, DATE_FORMAT(expiration, '%e/%b/%Y %H:%i') as fexpiration FROM SM_Mail WHERE id=?"),
     MarkRead("UPDATE SM_Mail SET isread=1, expiration=DATE_ADD(NOW(), INTERVAL ? DAY) WHERE id=?"),
     Inbox("SELECT *, DATE_FORMAT(date, '%e/%b/%Y %H:%i') as fdate FROM SM_Mail WHERE target_id=?"),
+    InboxConsole("SELECT *, DATE_FORMAT(date, '%e/%b/%Y %H:%i') as fdate FROM SM_Mail WHERE target LIKE ?"),
     Outbox("SELECT *, DATE_FORMAT(date, '%e/%b/%Y %H:%i') as fdate FROM SM_Mail WHERE sender_id=?"),
-    Mailboxes("SELECT DISTINCT target FROM SM_Mail"),
+    OutboxConsole("SELECT *, DATE_FORMAT(date, '%e/%b/%Y %H:%i') as fdate FROM SM_Mail WHERE sender LIKE ?"),
+    Mailboxes("SELECT target, Count(*) AS Messages, Count(*) - Sum(isread) AS Unread FROM SM_Mail WHERE target LIKE ? GROUP BY target ORDER BY target LIMIT ?"),
     Purge("DELETE FROM SM_Mail WHERE expiration IS NOT NULL AND expiration < NOW()"),
     Delete("DELETE FROM SM_Mail WHERE id=? and target_id=?");
     
