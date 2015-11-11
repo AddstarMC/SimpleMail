@@ -52,7 +52,7 @@ public class CommandMailboxes implements CommandExecutor {
 			else
 				sender.sendMessage(ChatColor.GOLD + "Active Inboxes " + ChatColor.AQUA + "(target Like '" + filterString + "', first " + maxRecords + "): ");
 
-			sender.sendMessage(ChatColor.GOLD + "PLAYER ----------- Messages -- Unread");
+			sender.sendMessage(ChatColor.GOLD + "PLAYER ----------- MESSAGES -- UNREAD");
 			while (rs.next()) {
 				sender.sendMessage(ChatColor.GREEN + Strings.padEnd(rs.getString("target"), 19, ' ') +
 						           ChatColor.WHITE + Strings.padEnd(String.valueOf(rs.getInt("messages")), 12, ' ') +

@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
+import com.google.common.base.Strings;
 import me.odium.test.DBConnection;
 import me.odium.test.Statements;
 import me.odium.test.SimpleMailPlugin;
@@ -43,15 +44,22 @@ public class CommandOutbox implements CommandExecutor {
 			else
 				rs = service.executeQuery(Statements.OutboxConsole, senderName);
 
-			sender.sendMessage(ChatColor.GOLD + "- ID ----- TO ----------- DATE ------");
+			sender.sendMessage(ChatColor.GOLD + "- ID ---- TO -------------- DATE ----------");
 			while (rs.next()) {
 				int isread = rs.getInt("isread");
+				int messageID = rs.getInt("id");
+
+				String formattedMessageID;
 				if (isread == 0) {
-					sender.sendMessage(SimpleMailPlugin.format("&7  [&a%d&7]         %s          %s", rs.getInt("id"), rs.getString("target"), rs.getString("fdate")));
+					formattedMessageID = Strings.padEnd(SimpleMailPlugin.format("&7 [&a%d&7]", messageID), 15, ' ');
 				} else {
-					sender.sendMessage(SimpleMailPlugin.format("&7  [%d]         %s          %s", rs.getInt("id"), rs.getString("target"), rs.getString("fdate")));
+					formattedMessageID = Strings.padEnd(SimpleMailPlugin.format("&7 [%d]", messageID), 11, ' ');
 				}
+				String msgTarget = Strings.padEnd(rs.getString("target"), 17, ' ');
+
+				sender.sendMessage(formattedMessageID + " " + msgTarget + " " + rs.getString("fdate"));
 			}
+
 		} catch (ExecutionException e) {
 			sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "An internal error occured while reading your outbox");
 		} catch (SQLException e) {
