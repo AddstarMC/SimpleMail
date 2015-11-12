@@ -36,59 +36,71 @@ public class CommandSendMail implements CommandExecutor {
 
 		final String message = StringUtils.join(args, ' ', 1, args.length);
 
-		Lookup.lookupPlayerName(args[0], new LookupCallback<PlayerDefinition>() {
-			@Override
-			public void onResult(boolean success, PlayerDefinition player, Throwable error) {
-				if (!success) {
-					sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "That player does not exist.");
-					return;
-				}
-
-				try {
-
-					int count = service.executeQueryInt(Statements.InboxCount, player.getUniqueId());
-					int maxSize = plugin.getConfig().getInt("MaxMailboxSize");
-
-					if (count >= maxSize) {
-						sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "Player's Inbox is full");
+		try {
+			Lookup.lookupPlayerName(args[0], new LookupCallback<PlayerDefinition>() {
+				@Override
+				public void onResult(boolean success, PlayerDefinition player, Throwable error) {
+					if (!success) {
+						sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "That player does not exist.");
 						return;
 					}
 
-					Player senderPlayer = null;
-					UUID senderUUID = null;
-					String senderUsername;
+					try {
 
-					if (sender instanceof Player) {
-						senderPlayer = (Player) sender;
-						senderUUID = senderPlayer.getUniqueId();
-						senderUsername = senderPlayer.getName();
-					} else {
-						// When sending from console, we want the sender to always be "Server"
-						senderUsername = "Server";
+						int count = service.executeQueryInt(Statements.InboxCount, player.getUniqueId());
+						int maxSize = plugin.getConfig().getInt("MaxMailboxSize");
+
+						if (count >= maxSize) {
+							sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "Player's Inbox is full");
+							return;
+						}
+
+						Player senderPlayer = null;
+						UUID senderUUID = null;
+						String senderUsername;
+
+						if (sender instanceof Player) {
+							senderPlayer = (Player) sender;
+							senderUUID = senderPlayer.getUniqueId();
+							senderUsername = senderPlayer.getName();
+						} else {
+							// When sending from console, we want the sender to always be "Server"
+							senderUsername = "Server";
+						}
+
+						service.executeUpdate(Statements.SendMail,
+								(senderUUID),
+								senderUsername,
+								player.getUniqueId(),
+								player.getName(),
+								message);
+
+						// Notify
+						sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.GREEN + "Message Sent to: " + ChatColor.WHITE + player.getName());
+
+						String msg = ChatColor.GRAY + "[SimpleMail] " + ChatColor.GREEN + "You've Got Mail!" + ChatColor.GOLD + " [/mail]";
+						if (player.isLocal()) {
+							player.getPlayer().sendMessage(msg);
+						} else {
+							plugin.SendPluginMessage("Message", player.getName(), msg);
+						}
+
+					} catch (ExecutionException e) {
+						if (sender instanceof Player)
+							sender.sendMessage(ChatColor.RED + "An internal error occured while executing this command.");
+						else
+							sender.sendMessage(ChatColor.RED + "[SimpleMail] " + ChatColor.RED + "Error sending mail: " + e.getMessage());
 					}
-
-					service.executeUpdate(Statements.SendMail,
-							(senderUUID),
-							senderUsername,
-							player.getUniqueId(),
-							player.getName(),
-							message);
-
-					// Notify
-					sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.GREEN + "Message Sent to: " + ChatColor.WHITE + player.getName());
-
-					String msg = ChatColor.GRAY + "[SimpleMail] " + ChatColor.GREEN + "You've Got Mail!" + ChatColor.GOLD + " [/mail]";
-					if (player.isLocal()) {
-						player.getPlayer().sendMessage(msg);
-					} else {
-						plugin.SendPluginMessage("Message", player.getName(), msg);
-					}
-
-				} catch (ExecutionException e) {
-					sender.sendMessage(ChatColor.RED + "An internal error occured while executing this command.");
 				}
-			}
-		});
+			});
+
+		} catch (IllegalStateException e) {
+			if (sender instanceof Player)
+				sender.sendMessage(ChatColor.RED + "An internal error occured while executing this command.");
+			else
+				sender.sendMessage(ChatColor.RED + "[SimpleMail] " + ChatColor.RED + "Error validating mail recipient: " + e.getMessage());
+
+		}
 
 		return true;
 	}
