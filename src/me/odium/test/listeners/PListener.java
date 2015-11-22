@@ -34,9 +34,11 @@ public class PListener implements Listener {
 					
 					try {
 					    int count = service.executeQueryInt(Statements.InboxCountUnread, player.getUniqueId());
-					    if(count > 0) {
-                            player.sendMessage(SimpleMailPlugin.format("&7[SimpleMail] &aYou have &6%d&a new messages", count));
-                        }
+					    if(count > 1) {
+                            player.sendMessage(SimpleMailPlugin.format("&7[SimpleMail] &aYou have &6%d&a new messages; see &b/inbox&a and &b/mail", count));
+                        } else if(count == 1) {
+							player.sendMessage(SimpleMailPlugin.format("&7[SimpleMail] &aYou have a new message; see &b/inbox&a and &b/mail"));
+						}
 					} catch (ExecutionException e) {
 					    // Say nothing
 					}
