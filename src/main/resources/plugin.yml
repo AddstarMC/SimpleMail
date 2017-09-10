@@ -1,6 +1,6 @@
 name: SimpleMail
 main: me.odium.test.SimpleMailPlugin
-version: 0.3.8
+version: ${plugin.version}
 
 depend: [Monolith]
 

@@ -11,7 +11,6 @@ import me.odium.test.Statements;
 import me.odium.test.SimpleMailPlugin;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.core.helpers.Strings;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
