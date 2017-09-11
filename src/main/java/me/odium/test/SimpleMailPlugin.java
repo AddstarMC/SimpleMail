@@ -161,7 +161,7 @@ public class SimpleMailPlugin extends JavaPlugin {
                     return;
                 }
                 try {
-                    service.executeUpdate(Statements.SendMail, senderUsername, senderUUID, player.getUniqueId(), player.getName(), mailmessage);
+                    service.executeUpdate(Statements.SendMail, senderUUID,senderUsername, player.getUniqueId(), player.getName(), mailmessage);
                 } catch (ExecutionException e) {
                     if (sender instanceof Player)
                         sender.sendMessage(ChatColor.RED + "An internal error occured while executing this command.");
