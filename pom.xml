@@ -75,7 +75,7 @@
     <dependency>
       <groupId>au.com.addstar</groupId>
       <artifactId>Monolith</artifactId>
-      <version>1.4.7-SNAPSHOT</version>
+      <version>1.4.8-SNAPSHOT</version>
     </dependency>
   </dependencies>
 
