@@ -17,13 +17,13 @@ import org.bukkit.command.CommandSender;
 
 public class CommandMailboxes implements CommandExecutor {
 
-	public SimpleMailPlugin plugin;
+    private final SimpleMailPlugin plugin;
 
 	public CommandMailboxes(SimpleMailPlugin plugin) {
 		this.plugin = plugin;
 	}
 
-	DBConnection service = DBConnection.getInstance();
+    private final DBConnection service = DBConnection.getInstance();
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		ResultSet rs = null;

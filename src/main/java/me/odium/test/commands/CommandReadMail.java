@@ -13,19 +13,18 @@ import me.odium.test.SimpleMailPlugin;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class CommandReadMail implements CommandExecutor {
+public class CommandReadMail extends AbstractCommand {
 
-	public SimpleMailPlugin plugin;
+	private final SimpleMailPlugin plugin;
 
 	public CommandReadMail(SimpleMailPlugin plugin) {
 		this.plugin = plugin;
 	}
 
-	DBConnection service = DBConnection.getInstance();
+	private final DBConnection service = DBConnection.getInstance();
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (args.length != 1) {
@@ -38,18 +37,8 @@ public class CommandReadMail implements CommandExecutor {
 		}
 
 		// Parse the message id
-        int messageId;
-        try {
-            messageId = Integer.parseInt(args[0]);
-            if (messageId < 0) {
-                sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "The message does not exist");
-                return true;
-            }
-        } catch (NumberFormatException e) {
-            sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "The message does not exist");
-            return true;
-        }
-		
+		Integer messageId = checkMessage(sender, args);
+		if (messageId == null) return true;
 		ResultSet rs = null;
 		try {
 			rs = service.executeQuery(Statements.ReadMail, messageId);
@@ -125,9 +114,6 @@ public class CommandReadMail implements CommandExecutor {
 
 	// Returns true if value is null, empty, or is the literal string "null"
 	private boolean IsNullOrEmpty(String value) {
-		if (StringUtils.isEmpty(value) || value.equalsIgnoreCase("null"))
-			return true;
-		else
-			return false;
+		return StringUtils.isEmpty(value) || value.equalsIgnoreCase("null");
 	}
 }

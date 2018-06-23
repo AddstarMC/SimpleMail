@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 
 public class CommandMail implements CommandExecutor {
 
-	public SimpleMailPlugin plugin;
+    private final SimpleMailPlugin plugin;
 
 	public CommandMail(SimpleMailPlugin plugin) {
 		this.plugin = plugin;

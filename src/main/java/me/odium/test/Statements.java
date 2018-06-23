@@ -15,9 +15,10 @@ public enum Statements {
     Mailboxes("SELECT target, Count(*) AS Messages, Count(*) - Sum(isread) AS Unread FROM SM_Mail WHERE target LIKE ? GROUP BY target ORDER BY target LIMIT ?"),
     Purge("DELETE FROM SM_Mail WHERE expiration IS NOT NULL AND expiration < NOW()"),
     Delete("DELETE FROM SM_Mail WHERE id=? and target_id=?");
-    
-    private String mSQL;
-    private Statements(String sql) {
+
+    private final String mSQL;
+
+    Statements(String sql) {
         mSQL = sql;
     }
     

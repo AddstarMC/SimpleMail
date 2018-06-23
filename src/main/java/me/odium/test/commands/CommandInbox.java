@@ -18,32 +18,27 @@ import org.bukkit.entity.Player;
 
 public class CommandInbox implements CommandExecutor {
 
-	public SimpleMailPlugin plugin;
+	private final SimpleMailPlugin plugin;
 
 	public CommandInbox(SimpleMailPlugin plugin) {
 		this.plugin = plugin;
 	}
 
-	DBConnection service = DBConnection.getInstance();
+	private final DBConnection service = DBConnection.getInstance();
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		Player player = null;
-		String targetName = "";
-
-		if (sender instanceof Player) {
-			player = (Player) sender;
-		} else {
-			// Command called from console
-			targetName = sender.getName();
-		}
-
+		Player player;
+		String targetName;
 		ResultSet rs = null;
 		try {
-			if (targetName.isEmpty())
+			if (sender instanceof Player) {
+				player = (Player) sender;
 				rs = service.executeQuery(Statements.Inbox, player.getUniqueId());
-			else
+			} else {
+				// Command called from console
+				targetName = sender.getName();
 				rs = service.executeQuery(Statements.InboxConsole, targetName);
-
+			}
 			sender.sendMessage(ChatColor.GOLD + "- ID ---- FROM ------------ DATE ----------");
 			while (rs.next()) {
 				int isread = rs.getInt("isread");

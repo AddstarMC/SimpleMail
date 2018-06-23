@@ -7,8 +7,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 import au.com.addstar.monolith.lookup.Lookup;
-import au.com.addstar.monolith.lookup.LookupCallback;
-import au.com.addstar.monolith.lookup.PlayerDefinition;
 import me.odium.test.commands.CommandClearMailbox;
 import me.odium.test.commands.CommandDelMail;
 import me.odium.test.commands.CommandInbox;
@@ -30,13 +28,12 @@ import org.bukkit.configuration.file.FileConfigurationOptions;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 
 public class SimpleMailPlugin extends JavaPlugin {
-    public Logger log = getLogger();
-    private DBConnection service = DBConnection.getInstance();
+    public final Logger log = getLogger();
+    private final DBConnection service = DBConnection.getInstance();
 
     public void onEnable() {
         // Load Config.yml
@@ -117,12 +114,12 @@ public class SimpleMailPlugin extends JavaPlugin {
         sender.sendMessage(ChatColor.GREEN + " /readmail <id> " + ChatColor.WHITE + "- Read a message");
         sender.sendMessage(ChatColor.GREEN + " /delmail <id> " + ChatColor.WHITE + "- Delete a message");
 
-        if (sender == null || sender.hasPermission("SimpleMail.admin") || sender.hasPermission("SimpleMail.spy")) {
+        if (sender.hasPermission("SimpleMail.admin") || sender.hasPermission("SimpleMail.spy")) {
             sender.sendMessage(ChatColor.GOLD + "[Admin Commands]");
             sender.sendMessage(ChatColor.AQUA + " /sentby " + ChatColor.WHITE + "- Find messages sent by user; supports % for wildcard");
             sender.sendMessage(ChatColor.AQUA + " /sentto " + ChatColor.WHITE + "- Find messages sent to user; supports % for wildcard");
 
-            if (sender == null || sender.hasPermission("SimpleMail.admin")) {
+            if (sender.hasPermission("SimpleMail.admin")) {
                 sender.sendMessage(ChatColor.AQUA + " /mailboxes <MaxRows> <NameFilter> " + ChatColor.WHITE + "- List active mailboxes; supports % sign for wildcard");
                 sender.sendMessage(ChatColor.AQUA + " /clearmailbox <playername> " + ChatColor.WHITE + "- Clear an active mailbox (delete messages received by player)");
                 sender.sendMessage(ChatColor.AQUA + " /purgemail " + ChatColor.WHITE + "- Purge expired messages from DB");
@@ -139,37 +136,33 @@ public class SimpleMailPlugin extends JavaPlugin {
         out.writeUTF(subchannel);
         out.writeUTF(data1);
         out.writeUTF(data2);
-        Player player = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
-        player.sendPluginMessage(this, "BungeeCord", out.toByteArray());
+        Bukkit.getServer().sendPluginMessage(this, "BungeeCord", out.toByteArray());
     }
 
     /**
      * Public Method to allow integration of external plugins to send mail.
      *
-     * @param senderUsername
-     * @param senderUUID
-     * @param targetName
-     * @param mailmessage
+     * @param senderUsername sender name
+     * @param senderUUID sender uuid
+     * @param targetName target name
+     * @param mailmessage message
      */
 
     public void SendMailMessage(CommandSender sender, String senderUsername, UUID senderUUID, String targetName, String mailmessage) {
-        Lookup.lookupPlayerName(targetName, new LookupCallback<PlayerDefinition>() {
-            @Override
-            public void onResult(boolean success, PlayerDefinition player, Throwable error) {
-                if (!success) {
-                    sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "That player does not exist.");
-                    return;
-                }
-                try {
-                    service.executeUpdate(Statements.SendMail, senderUUID,senderUsername, player.getUniqueId(), player.getName(), mailmessage);
-                } catch (ExecutionException e) {
-                    if (sender instanceof Player)
-                        sender.sendMessage(ChatColor.RED + "An internal error occured while executing this command.");
-                    else
-                        sender.sendMessage(ChatColor.RED + "[SimpleMail] " + ChatColor.RED + "Error sending mail: " + e.getMessage());
-                }
-
+        Lookup.lookupPlayerName(targetName, (success, player, error) -> {
+            if (!success) {
+                sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "That player does not exist.");
+                return;
             }
+            try {
+                service.executeUpdate(Statements.SendMail, senderUUID, senderUsername, player.getUniqueId(), player.getName(), mailmessage);
+            } catch (ExecutionException e) {
+                if (sender instanceof Player)
+                    sender.sendMessage(ChatColor.RED + "An internal error occured while executing this command.");
+                else
+                    sender.sendMessage(ChatColor.RED + "[SimpleMail] " + ChatColor.RED + "Error sending mail: " + e.getMessage());
+            }
+
         });
     }
 }

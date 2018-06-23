@@ -7,9 +7,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-public class CommandPurgeMail implements CommandExecutor {   
+public class CommandPurgeMail implements CommandExecutor {
 
-  public SimpleMailPlugin plugin;
+    private final SimpleMailPlugin plugin;
   public CommandPurgeMail(SimpleMailPlugin plugin)  {
       this.plugin = plugin;
   }
