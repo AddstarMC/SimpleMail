@@ -10,7 +10,7 @@ import me.odium.test.DBConnection;
 import me.odium.test.Statements;
 import me.odium.test.SimpleMailPlugin;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
