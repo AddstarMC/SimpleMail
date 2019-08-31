@@ -15,33 +15,41 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 public class PListener implements Listener {
 
-    private final SimpleMailPlugin plugin;
-	public PListener(SimpleMailPlugin plugin) {    
-		this.plugin = plugin;
-		plugin.getServer().getPluginManager().registerEvents(this, plugin);
-	}
+  private final SimpleMailPlugin plugin;
+  private final DBConnection service = DBConnection.getInstance();
 
-    private final DBConnection service = DBConnection.getInstance();
+  public PListener(SimpleMailPlugin plugin) {
+    this.plugin = plugin;
+    plugin.getServer().getPluginManager().registerEvents(this, plugin);
+  }
 
-	@EventHandler(priority = EventPriority.NORMAL)
-	public void onPlayerJoin(PlayerJoinEvent event) {
-		if (plugin.getConfig().getBoolean("OnPlayerJoin.ShowNewMessages")) {
-			final Player player = event.getPlayer();
-			int Delay = plugin.getConfig().getInt("OnPlayerJoin.DelayInSeconds");
-            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                if (!player.isOnline()) return;
+  /**
+   * Notify of new messages
+   *
+   * @param event the JoinEvent
+   */
+  @EventHandler(priority = EventPriority.NORMAL)
+  public void onPlayerJoin(PlayerJoinEvent event) {
+    if (plugin.getConfig().getBoolean("OnPlayerJoin.ShowNewMessages")) {
+      final Player player = event.getPlayer();
+      int Delay = plugin.getConfig().getInt("OnPlayerJoin.DelayInSeconds");
+      Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+        if (!player.isOnline()) return;
 
-                try {
-                    int count = service.executeQueryInt(Statements.InboxCountUnread, player.getUniqueId());
-                    if (count > 1) {
-                        player.sendMessage(SimpleMailPlugin.format("&7[SimpleMail] &aYou have &6%d&a new messages; see &b/inbox&a and &b/mail", count));
-                    } else if (count == 1) {
-                        player.sendMessage(SimpleMailPlugin.format("&7[SimpleMail] &aYou have a new message; see &b/inbox&a and &b/mail"));
-                    }
-                } catch (ExecutionException e) {
-                    // Say nothing
-                }
-            }, Delay * 20L);
-		}
-	}
+        try {
+          int count = service.executeQueryInt(Statements.InboxCountUnread, player.getUniqueId());
+          if (count > 1) {
+            player.sendMessage(
+                SimpleMailPlugin.format("&7[SimpleMail] &aYou have &6%d&a new messages; see "
+                    + "&b/inbox&a and &b/mail", count));
+          } else if (count == 1) {
+            player.sendMessage(SimpleMailPlugin.format("&7[SimpleMail] &aYou have a new message;"
+                + " see &b/inbox&a and &b/mail"));
+          }
+        } catch (ExecutionException e) {
+          // Say nothing
+        }
+      }, Delay * 20L);
+    }
+  }
 }

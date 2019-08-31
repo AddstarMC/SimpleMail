@@ -10,18 +10,20 @@ import org.bukkit.command.CommandSender;
  */
 abstract class AbstractCommand implements CommandExecutor {
 
-    Integer checkMessage(CommandSender sender, String[] args) {
-        Integer messageId;
-        try {
-            messageId = Integer.parseInt(args[0]);
-            if (messageId < 0) {
-                sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "The message does not exist");
-                return null;
-            }
-        } catch (NumberFormatException e) {
-            sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED + "The message does not exist");
-            return null;
-        }
-        return messageId;
+  Integer checkMessage(CommandSender sender, String[] args) {
+    Integer messageId;
+    try {
+      messageId = Integer.parseInt(args[0]);
+      if (messageId < 0) {
+        sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED
+            + "The message does not exist");
+        return null;
+      }
+    } catch (NumberFormatException e) {
+      sender.sendMessage(ChatColor.GRAY + "[SimpleMail] " + ChatColor.RED
+          + "The message does not exist");
+      return null;
     }
+    return messageId;
+  }
 }
